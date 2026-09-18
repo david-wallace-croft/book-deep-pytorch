@@ -1,0 +1,46 @@
+[package]
+authors = ["David Wallace Croft <david@CroftSoft.com>"]
+description = "Code adapted from 'Deep Learning with PyTorch, Second Edition'"
+edition = "2024"
+homepage = "https://www.CroftSoft.com/"
+license = "MIT"
+name = "book-deep-pytorch"
+publish = false
+readme = "README.md"
+repository = "https://github.com/david-wallace-croft/book-deep-pytorch"
+rust-version = "1.98.1"
+version = "0.0.0-SNAPSHOT"
+
+[dependencies]
+# none
+
+[profile.dev]
+codegen-units = 256
+# debug = "line-tables-only"
+debug = true
+opt-level = 0
+lto = "off"
+
+[profile.release]
+codegen-units = 1
+debug = false
+# lto = "thin"
+lto = true
+opt-level = 3
+
+[workspace]
+members = ["ch2-p021"]
+
+[workspace.dependencies]
+# autodiff = "=0.7.0"
+# autograd = "=1.1.1"
+# csv = "=1.4.0"
+# linfa = "=0.8.1"
+# ndarray = "=0.17.2"
+# ndarray-rand = "=0.16.0"
+# plotters = "=0.3.7"
+# rand = "=0.10.2"
+# rand_distr = "=0.6.0"
+# rayon = "=1.12.0"
+tch = "=0.26.0"
+# tokio = "=1.53.1"
