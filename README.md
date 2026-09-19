@@ -18,8 +18,8 @@
 
 ## Usage
 
-- cargo test --all
-- cargo run -p ch2-p021
+- cargo test --workspace
+- cargo run -p ch2-p017
 - \[...\]
 
 ## History
