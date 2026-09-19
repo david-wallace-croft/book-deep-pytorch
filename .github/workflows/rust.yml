@@ -8,18 +8,48 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  LIBTORCH_BYPASS_VERSION_CHECK: 1
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    timeout-minutes: 10
     steps:
-    - uses: actions/checkout@v4
-    - name: format
-      run: cargo fmt --all --check
-    - name: clippy
-      run: cargo clippy -- -D warnings
-    - name: test
-      # run: cargo test --verbose --workspace
-      run: cargo test --workspace
+      - name: checkout
+        uses: actions/checkout@v6
+      - name: install
+        run: |
+          sudo apt-get update
+          sudo apt-get install pkg-config libfontconfig1-dev
+      - name: cache
+        id: cache-venv
+        uses: actions/cache@v5
+        with:
+          path: .venv
+          key: ${{ runner.os }}-venv-torch-${{ hashFiles('Cargo.toml') }}
+      - name: Download Torch
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install torch==2.12.1 torchvision --index-url https://download.pytorch.org/whl/cpu
+      - name: Set Environment
+        run: |
+          source .venv/bin/activate
+          TORCH_PATH=$(python -c 'import torch; import os; print(os.path.dirname(torch.__file__))')          
+          echo "LIBTORCH=$TORCH_PATH"
+          echo "LIBTORCH=$TORCH_PATH" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$TORCH_PATH/lib:$LD_LIBRARY_PATH"
+          echo "LD_LIBRARY_PATH=$TORCH_PATH/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          echo "LIBTORCH_USE_PYTORCH=1"
+          echo "LIBTORCH_USE_PYTORCH=1" >> $GITHUB_ENV
+      - name: format
+        run: cargo fmt --all --check
+      - name: clippy
+        run: cargo clippy -- -D warnings
+      - name: test
+        run: |
+          source .venv/bin/activate
+          # cargo test --workspace --verbose
+          cargo test --workspace
