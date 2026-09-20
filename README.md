@@ -17,7 +17,15 @@
      https://livebook-qa.manning.com/forum?product=huang)
 - Python code converted to Rust using the crate "tch"
   - [https://github.com/LaurentMazare/tch-rs](
-    https://github.com/LaurentMazare/tch-rs)
+     https://github.com/LaurentMazare/tch-rs)
+  - [https://docs.rs/tch/latest/tch/](
+     https://docs.rs/tch/latest/tch/)
+  - [https://github.com/LaurentMazare/diffusers-rs](
+     https://github.com/LaurentMazare/diffusers-rs)
+  - [https://docs.rs/diffusers/latest/diffusers/](
+     https://docs.rs/diffusers/latest/diffusers/)
+     
+    
 
 ## Usage
 
