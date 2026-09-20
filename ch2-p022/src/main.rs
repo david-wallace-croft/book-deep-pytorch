@@ -3,6 +3,12 @@ use ::tch::nn::{ModuleT, Path, VarStore};
 use ::tch::vision::{imagenet, resnet};
 use ::tch::{Device, Kind, TchError, Tensor};
 
+// Download bobby.jpg from
+//   https://github.com/deep-learning-with-pytorch/dlwpt-code-2e/blob/main/data/
+//   p1ch2/bobby.jpg
+// Download resnet18.ot from
+//   https://github.com/LaurentMazare/tch-rs/releases/download/mw/resnet18.ot
+
 const IMAGE_FILENAME: &str = "bobby.jpg";
 const TOP_COUNT: i64 = 5;
 const TRAIN: bool = false;

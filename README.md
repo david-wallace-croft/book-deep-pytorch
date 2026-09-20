@@ -15,6 +15,9 @@
      https://github.com/deep-learning-with-pytorch/dlwpt-code-2e)
   - [https://livebook-qa.manning.com/forum?product=huang](
      https://livebook-qa.manning.com/forum?product=huang)
+- Python code converted to Rust using the crate "tch"
+  - [https://github.com/LaurentMazare/tch-rs](
+    https://github.com/LaurentMazare/tch-rs)
 
 ## Usage
 
