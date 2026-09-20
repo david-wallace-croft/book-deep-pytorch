@@ -4,6 +4,7 @@ use ::tch::vision::{imagenet, resnet};
 use ::tch::{Device, Kind, TchError, Tensor};
 
 const IMAGE_FILENAME: &str = "bobby.jpg";
+const TOP_COUNT: i64 = 5;
 const TRAIN: bool = false;
 const WEIGHTS_FILENAME: &str = "resnet18.ot";
 
@@ -16,17 +17,9 @@ fn main() -> Result<(), TchError> {
 
   let image: Tensor = load_image()?;
 
-  let unsqueezed: Tensor = image.unsqueeze(0);
+  let probabilities: Tensor = infer(image, model);
 
-  let output: Tensor = model.forward_t(&unsqueezed, TRAIN);
-
-  let probabilities: Tensor = output.softmax(-1, Kind::Float);
-
-  for (probability, class) in imagenet::top(&probabilities, 5).iter() {
-    let percentage = probability * 100.0;
-
-    println!("{class:50} {percentage:5.2}%");
-  }
+  print_top(&probabilities);
 
   Ok(())
 }
@@ -37,6 +30,17 @@ fn get_file_path(filename: &str) -> PathBuf {
   let cargo_manifest_dir_path = ::std::path::Path::new(cargo_manifest_dir);
 
   cargo_manifest_dir_path.join(filename)
+}
+
+fn infer(
+  image: Tensor,
+  model: Box<dyn ModuleT>,
+) -> Tensor {
+  let unsqueezed: Tensor = image.unsqueeze(0);
+
+  let output: Tensor = model.forward_t(&unsqueezed, TRAIN);
+
+  output.softmax(-1, Kind::Float)
 }
 
 fn load_image() -> Result<Tensor, TchError> {
@@ -67,12 +71,12 @@ fn load_weights(var_store: &mut VarStore) -> Result<(), TchError> {
   Ok(())
 }
 
-#[cfg(test)]
-mod test {
-  // use super::*;
+fn print_top(probabilities: &Tensor) {
+  let top: Vec<(f64, String)> = imagenet::top(probabilities, TOP_COUNT);
 
-  #[test]
-  fn test() {
-    // TODO
+  for (probability, class) in top.iter() {
+    let percentage = probability * 100.0;
+
+    println!("{class:50} {percentage:5.2}%");
   }
 }
