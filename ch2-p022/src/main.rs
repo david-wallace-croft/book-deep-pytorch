@@ -10,6 +10,8 @@ const WEIGHTS_FILENAME: &str = "resnet18.ot";
 fn main() -> Result<(), TchError> {
   let (model, mut var_store): (Box<dyn ModuleT>, VarStore) = load_model()?;
 
+  // Weights must be loaded after VarStore is associated with the model
+
   load_weights(&mut var_store)?;
 
   let image: Tensor = load_image()?;
