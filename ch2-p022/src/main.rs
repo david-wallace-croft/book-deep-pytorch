@@ -1,79 +1,65 @@
-#![expect(unused_imports)]
-#![expect(unused_mut)]
-#![expect(unused_variables)]
+use ::std::path::PathBuf;
+use ::tch::nn::{ModuleT, Path, VarStore};
+use ::tch::vision::{imagenet, resnet};
+use ::tch::{Device, Kind, TchError, Tensor};
 
-use ::std::error::Error;
-use ::std::path::{Path, PathBuf};
-use ::tch::nn::VarStore;
-use ::tch::vision::{alexnet, imagenet, resnet};
-use ::tch::{Device, Tensor};
+const TRAIN: bool = false;
 
-fn main() -> Result<(), Box<dyn Error>> {
-  let device: Device = Device::cuda_if_available();
+fn main() -> Result<(), TchError> {
+  let (model, mut var_store): (Box<dyn ModuleT>, VarStore) = load_model()?;
 
-  // Create a path variable for the neural network weights
-  let mut var_store: VarStore = VarStore::new(device);
+  load_weights(&mut var_store)?;
 
-  // Standard ImageNet classes for AlexNet
-  let nclasses: i64 = 1_000;
+  let image: Tensor = load_image()?;
 
-  // Pass the root path from the VarStore and the number of classes
-  // let _model = alexnet::alexnet(&var_store.root(), nclasses);
+  let unsqueezed: Tensor = image.unsqueeze(0);
 
-  let resnet = resnet::resnet101(&var_store.root(), nclasses);
+  let output: Tensor = model.forward_t(&unsqueezed, TRAIN);
 
+  let probabilities: Tensor = output.softmax(-1, Kind::Float);
+
+  for (probability, class) in imagenet::top(&probabilities, 5).iter() {
+    let percentage = probability * 100.0;
+
+    println!("{class:50} {percentage:5.2}%");
+  }
+
+  Ok(())
+}
+
+fn get_file_path(filename: &str) -> PathBuf {
   let cargo_manifest_dir = env!("CARGO_MANIFEST_DIR");
 
-  let project_root_path = Path::new(cargo_manifest_dir);
+  let cargo_manifest_dir_path = ::std::path::Path::new(cargo_manifest_dir);
 
-  // 3. Load the pretrained weights file
-  // (Note: You must download the PyTorch-compatible resnet101 weights file
-  // e.g., 'resnet101-5d3b4d8f.pth' from the official PyTorch repo and save it locally)
-  let weights_path: PathBuf = project_root_path.join("resnet101-63fe2227.pth");
+  cargo_manifest_dir_path.join(filename)
+}
 
-  // var_store.load(weights_path)?;
+fn load_image() -> Result<Tensor, TchError> {
+  let file_path: PathBuf = get_file_path("bobby.jpg");
 
-  // Append a file or subpath to the root path
-  let file_path: PathBuf = project_root_path.join("bobby.jpg");
+  let image_tensor: Tensor = imagenet::load_image_and_resize224(file_path)?;
 
-  let image_tensor: tch::Tensor =
-    imagenet::load_image_and_resize224(file_path)?;
+  Ok(image_tensor)
+}
 
-  let batch_tensor: tch::Tensor = image_tensor.unsqueeze(0);
+fn load_model() -> Result<(Box<dyn ModuleT>, VarStore), TchError> {
+  // let device: Device = Device::cuda_if_available();
+  let device: Device = Device::Cpu;
 
-  let output = batch_tensor.apply_t(&resnet, false);
+  let var_store: VarStore = VarStore::new(device);
 
-  println!("Output shape: {:?}", output.size());
+  let path: Path = var_store.root();
 
-  println!("{output:?}");
+  let resnet = Box::new(resnet::resnet101(&path, imagenet::CLASS_COUNT));
 
-  // Get the top 3 values and indices along the last dimension (-1)
-  let (top_values, top_indices) = output.topk(3, -1, true, true);
+  Ok((resnet, var_store))
+}
 
-  // Print the results
-  println!("Top 3 values: {:?}", top_values);
-  println!("Top 3 class indices: {:?}", top_indices);
+fn load_weights(var_store: &mut VarStore) -> Result<(), TchError> {
+  let file_path: PathBuf = get_file_path("resnet18.ot");
 
-  // Assuming top_values is your tensor from topk()
-  // Convert the tensor to a 1D Rust vector of f64 (or f32)
-  // let values: Vec<f64> = top_values.iter::<f64>().unwrap().collect();
-
-  // println!("{values:?}");
-
-  // // Alternatively, you can access them by index directly:
-  // for i in 0..3 {
-  //   let val = top_values.double_value(&[
-  //     0, i,
-  //   ]); // Assuming shape is [1, 3]
-  //   println!("Top value {}: {}", i + 1, val);
-  // }
-
-  for i in 0..3 {
-    let val = top_indices.double_value(&[
-      0, i,
-    ]);
-    println!("Element {}: {}", i, val);
-  }
+  var_store.load(file_path)?;
 
   Ok(())
 }

@@ -28,13 +28,13 @@ jobs:
         with:
           path: .venv
           key: ${{ runner.os }}-venv-torch-${{ hashFiles('Cargo.toml') }}
-      - name: Download Torch
+      - name: download
         if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
           python -m venv .venv
           source .venv/bin/activate
           pip install torch==2.12.1 torchvision --index-url https://download.pytorch.org/whl/cpu
-      - name: Set Environment
+      - name: environment
         run: |
           source .venv/bin/activate
           TORCH_PATH=$(python -c 'import torch; import os; print(os.path.dirname(torch.__file__))')          

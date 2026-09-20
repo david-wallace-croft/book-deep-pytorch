@@ -20,6 +20,7 @@
 
 - cargo test --workspace
 - cargo run -p ch2-p017
+- cargo run -p ch2-p022
 - \[...\]
 
 ## History
