@@ -3,7 +3,9 @@ use ::tch::nn::{ModuleT, Path, VarStore};
 use ::tch::vision::{imagenet, resnet};
 use ::tch::{Device, Kind, TchError, Tensor};
 
+const IMAGE_FILENAME: &str = "bobby.jpg";
 const TRAIN: bool = false;
+const WEIGHTS_FILENAME: &str = "resnet18.ot";
 
 fn main() -> Result<(), TchError> {
   let (model, mut var_store): (Box<dyn ModuleT>, VarStore) = load_model()?;
@@ -36,7 +38,7 @@ fn get_file_path(filename: &str) -> PathBuf {
 }
 
 fn load_image() -> Result<Tensor, TchError> {
-  let file_path: PathBuf = get_file_path("bobby.jpg");
+  let file_path: PathBuf = get_file_path(IMAGE_FILENAME);
 
   let image_tensor: Tensor = imagenet::load_image_and_resize224(file_path)?;
 
@@ -44,20 +46,19 @@ fn load_image() -> Result<Tensor, TchError> {
 }
 
 fn load_model() -> Result<(Box<dyn ModuleT>, VarStore), TchError> {
-  // let device: Device = Device::cuda_if_available();
-  let device: Device = Device::Cpu;
+  let device: Device = Device::cuda_if_available();
 
   let var_store: VarStore = VarStore::new(device);
 
   let path: Path = var_store.root();
 
-  let resnet = Box::new(resnet::resnet101(&path, imagenet::CLASS_COUNT));
+  let resnet = Box::new(resnet::resnet18(&path, imagenet::CLASS_COUNT));
 
   Ok((resnet, var_store))
 }
 
 fn load_weights(var_store: &mut VarStore) -> Result<(), TchError> {
-  let file_path: PathBuf = get_file_path("resnet18.ot");
+  let file_path: PathBuf = get_file_path(WEIGHTS_FILENAME);
 
   var_store.load(file_path)?;
 
