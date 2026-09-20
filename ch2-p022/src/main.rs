@@ -21,9 +21,17 @@ const WEIGHTS_ALEXNET: &str = "alexnet.ot";
 const WEIGHTS_RESNET: &str = "resnet18.ot";
 
 fn main() -> Result<(), TchError> {
-  label_image_using_alexnet()?;
+  println!("=== AlexNet");
 
-  label_image_using_resnet()
+  let model: Box<dyn ModuleT> = load_alexnet()?;
+
+  label_image(model)?;
+
+  println!("=== ResNet");
+
+  let model: Box<dyn ModuleT> = load_resnet()?;
+
+  label_image(model)
 }
 
 fn get_file_path(filename: &str) -> PathBuf {
@@ -64,24 +72,6 @@ fn label_image(model: Box<dyn ModuleT>) -> Result<(), TchError> {
   Ok(())
 }
 
-fn label_image_using_alexnet() -> Result<(), TchError> {
-  let (model, mut var_store): (Box<dyn ModuleT>, VarStore) = load_alexnet()?;
-
-  load_weights(&mut var_store, WEIGHTS_ALEXNET)?;
-
-  label_image(model)
-}
-
-fn label_image_using_resnet() -> Result<(), TchError> {
-  let (model, mut var_store): (Box<dyn ModuleT>, VarStore) = load_resnet()?;
-
-  // Weights must be loaded after VarStore is associated with the model
-
-  load_weights(&mut var_store, WEIGHTS_RESNET)?;
-
-  label_image(model)
-}
-
 fn load_image() -> Result<Tensor, TchError> {
   let file_path: PathBuf = get_file_path(IMAGE_FILENAME);
 
@@ -90,39 +80,38 @@ fn load_image() -> Result<Tensor, TchError> {
   Ok(image_tensor)
 }
 
-fn load_alexnet() -> Result<(Box<dyn ModuleT>, VarStore), TchError> {
+fn load_alexnet() -> Result<Box<dyn ModuleT>, TchError> {
   let device: Device = Device::cuda_if_available();
 
-  let var_store: VarStore = VarStore::new(device);
+  let mut var_store: VarStore = VarStore::new(device);
 
   let path: Path = var_store.root();
 
-  let resnet = Box::new(alexnet::alexnet(&path, imagenet::CLASS_COUNT));
+  let alexnet = Box::new(alexnet::alexnet(&path, imagenet::CLASS_COUNT));
 
-  Ok((resnet, var_store))
+  let file_path: PathBuf = get_file_path(WEIGHTS_ALEXNET);
+
+  var_store.load(file_path)?;
+
+  Ok(alexnet)
 }
 
-fn load_resnet() -> Result<(Box<dyn ModuleT>, VarStore), TchError> {
+fn load_resnet() -> Result<Box<dyn ModuleT>, TchError> {
   let device: Device = Device::cuda_if_available();
 
-  let var_store: VarStore = VarStore::new(device);
+  let mut var_store: VarStore = VarStore::new(device);
 
   let path: Path = var_store.root();
 
   let resnet = Box::new(resnet::resnet18(&path, imagenet::CLASS_COUNT));
 
-  Ok((resnet, var_store))
-}
+  let file_path: PathBuf = get_file_path(WEIGHTS_RESNET);
 
-fn load_weights(
-  var_store: &mut VarStore,
-  weights_filename: &'static str,
-) -> Result<(), TchError> {
-  let file_path: PathBuf = get_file_path(weights_filename);
+  // Weights must be loaded after VarStore is associated with the model
 
   var_store.load(file_path)?;
 
-  Ok(())
+  Ok(resnet)
 }
 
 fn print_top(probabilities: &Tensor) {
