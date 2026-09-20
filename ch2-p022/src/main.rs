@@ -42,10 +42,19 @@ fn infer(
   image: Tensor,
   model: Box<dyn ModuleT>,
 ) -> Tensor {
+  println!("image: {image:?}");
+
+  // "Returns a new tensor with a dimension of size one inserted at the
+  // specified position"
+  // https://docs.pytorch.org/docs/main/generated/torch.unsqueeze.html
   let unsqueezed: Tensor = image.unsqueeze(0);
+
+  println!("unsqueezed: {unsqueezed:?}");
 
   let output: Tensor = model.forward_t(&unsqueezed, TRAIN);
 
+  // https://docs.pytorch.org/docs/main/generated/
+  //   torch.nn.functional.softmax.html
   output.softmax(-1, Kind::Float)
 }
 
