@@ -24,8 +24,6 @@
      https://github.com/LaurentMazare/diffusers-rs)
   - [https://docs.rs/diffusers/latest/diffusers/](
      https://docs.rs/diffusers/latest/diffusers/)
-     
-    
 
 ## Usage
 
