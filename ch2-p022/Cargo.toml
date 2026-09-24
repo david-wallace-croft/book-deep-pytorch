@@ -7,7 +7,7 @@ license = "MIT"
 name = "ch2-p022"
 publish = false
 readme = "README.md"
-repository = "https://github.com/david-wallace-croft/book-deep-learning"
+repository = "https://github.com/david-wallace-croft/book-deep-pytorch"
 rust-version = "1.98.1"
 version = "0.0.0-SNAPSHOT"
 

@@ -4,7 +4,7 @@ description = "Code adapted from 'Deep Learning with PyTorch, Second Edition'"
 edition = "2024"
 homepage = "https://www.CroftSoft.com/"
 license = "MIT"
-name = "ch2-p017"
+name = "ch2-p017-candle"
 publish = false
 readme = "README.md"
 repository = "https://github.com/david-wallace-croft/book-deep-pytorch"
@@ -12,4 +12,4 @@ rust-version = "1.98.1"
 version = "0.0.0-SNAPSHOT"
 
 [dependencies]
-tch = { workspace = true }
+candle-core = { workspace = true }
