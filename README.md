@@ -15,6 +15,11 @@
      https://github.com/deep-learning-with-pytorch/dlwpt-code-2e)
   - [https://livebook-qa.manning.com/forum?product=huang](
      https://livebook-qa.manning.com/forum?product=huang)
+- Python code converted to Rust using the crate "candle"
+  - [https://github.com/huggingface/candle](
+     https://github.com/huggingface/candle)
+  - [https://huggingface.github.io/candle/guide/cheatsheet.html](
+     https://huggingface.github.io/candle/guide/cheatsheet.html)
 - Python code converted to Rust using the crate "tch"
   - [https://github.com/LaurentMazare/tch-rs](
      https://github.com/LaurentMazare/tch-rs)
@@ -28,8 +33,8 @@
 ## Usage
 
 - cargo test --workspace
-- cargo run -p ch2-p017
-- cargo run -p ch2-p022
+- cargo run -p ch2-p017 --release
+- cargo run -p ch2-p022 --release
 - \[...\]
 
 ## History
