@@ -15,7 +15,7 @@
      https://github.com/deep-learning-with-pytorch/dlwpt-code-2e)
   - [https://livebook-qa.manning.com/forum?product=huang](
      https://livebook-qa.manning.com/forum?product=huang)
-- Python code converted to Rust using the crate "candle"
+- Python code converted to Rust using Hugging Face Candle
   - [https://github.com/huggingface/candle](
      https://github.com/huggingface/candle)
   - [https://huggingface.github.io/candle/guide/cheatsheet.html](
