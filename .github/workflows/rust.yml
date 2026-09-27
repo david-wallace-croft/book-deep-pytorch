@@ -47,7 +47,9 @@ jobs:
       - name: format
         run: cargo fmt --all --check
       - name: clippy
-        run: cargo clippy --all -- -D warnings
+        run: |
+          source .venv/bin/activate
+          cargo clippy --all -- -D warnings
       - name: test
         run: |
           source .venv/bin/activate
