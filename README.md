@@ -18,6 +18,8 @@
 - Python code converted to Rust using Hugging Face Candle
   - [https://github.com/huggingface/candle](
      https://github.com/huggingface/candle)
+  - [https://huggingface.github.io/candle/](
+     https://huggingface.github.io/candle/)
   - [https://huggingface.github.io/candle/guide/cheatsheet.html](
      https://huggingface.github.io/candle/guide/cheatsheet.html)
 - Python code converted to Rust using the crate "tch"
@@ -35,6 +37,7 @@
 - cargo test --workspace
 - cargo run -p ch2-p017 --release
 - cargo run -p ch2-p022 --release
+- cargo run -p ch3-p043 --release
 - \[...\]
 
 ## History

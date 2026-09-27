@@ -6,7 +6,7 @@ fn main() {
   println!("device.is_cuda(): {}", device.is_cuda());
 
   let a = Tensor::ones(
-    &[
+    [
       3, 3,
     ],
     (Kind::Float, device),
@@ -15,7 +15,7 @@ fn main() {
   println!("{a}");
 
   let b = Tensor::ones(
-    &[
+    [
       3, 3,
     ],
     (Kind::Float, device),
