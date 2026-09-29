@@ -16,6 +16,7 @@ fn main() -> Result<()> {
     &device,
   )?;
 
+  #[expect(clippy::single_range_in_vec_init)]
   let points: Tensor = points.slice_assign(&[0..6], &value)?;
 
   println!("points: {points}\n");
