@@ -29,7 +29,14 @@ lto = true
 opt-level = 3
 
 [workspace]
-members = ["ch2-p017", "ch2-p017-candle", "ch2-p022", "ch3-p043", "ch3-p044"]
+members = [
+  "ch2-p017",
+  "ch2-p017-candle",
+  "ch2-p022",
+  "ch3-p043",
+  "ch3-p044",
+  "ch3-p046",
+]
 
 [workspace.dependencies]
 # autodiff = "=0.7.0"

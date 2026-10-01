@@ -92,7 +92,7 @@ mod test {
 
   #[test]
   fn test_p44() -> Result<()> {
-    let device: Device = Device::cuda_if_available(0)?;
+    let device: Device = Device::Cpu;
 
     let points: Tensor = Tensor::zeros(6, DType::F32, &device)?;
 
@@ -123,9 +123,7 @@ mod test {
 
   #[test]
   fn test_p45() -> Result<()> {
-    let device: Device = Device::cuda_if_available(0)?;
-
-    println!("\ndevice.is_cuda(): {}\n", device.is_cuda());
+    let device: Device = Device::Cpu;
 
     let points: Tensor = Tensor::new(
       &[
@@ -206,9 +204,7 @@ mod test {
   }
   #[test]
   fn test_p46() -> Result<()> {
-    let device: Device = Device::cuda_if_available(0)?;
-
-    println!("\ndevice.is_cuda(): {}\n", device.is_cuda());
+    let device: Device = Device::Cpu;
 
     let points: Tensor = Tensor::new(
       &[
