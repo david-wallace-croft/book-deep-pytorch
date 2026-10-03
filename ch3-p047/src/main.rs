@@ -94,17 +94,3 @@ fn main() -> Result<()> {
 
   Ok(())
 }
-
-#[cfg(test)]
-mod test {
-  use super::*;
-
-  #[test]
-  fn test() -> Result<()> {
-    let device: Device = Device::Cpu;
-
-    // TODO
-
-    Ok(())
-  }
-}
