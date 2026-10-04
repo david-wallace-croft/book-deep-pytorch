@@ -133,6 +133,8 @@ fn main() -> Result<()> {
 
   println!("\npoints_t:\n{points_t}\n");
 
+  // page 63
+
   let (storage, _layout) = points_t.storage_and_layout();
 
   println!("points_t storage: {:?}", storage);
