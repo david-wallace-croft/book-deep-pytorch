@@ -1,5 +1,3 @@
-#![doc = include_str!("../../README.md")]
-
 use ::candle_core::{
   CpuStorage::F32, DType, Device, Layout, Result, Storage, Storage::Cpu, Tensor,
 };

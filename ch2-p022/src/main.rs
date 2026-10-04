@@ -1,5 +1,3 @@
-#![doc = include_str!("../../README.md")]
-
 use ::std::path::PathBuf;
 use ::tch::nn::{ModuleT, Path, VarStore};
 use ::tch::vision::{alexnet, imagenet, resnet};
