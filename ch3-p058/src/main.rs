@@ -1,10 +1,6 @@
-#![expect(unused)]
-
 use ::candle_core::{
-  CpuStorage::F32, DType, Device, IndexOp, Layout, Result, Storage,
-  Storage::Cpu, Tensor,
+  CpuStorage::F32, DType, Device, IndexOp, Result, Storage::Cpu, Tensor,
 };
-use ::std::sync::RwLockReadGuard;
 
 fn main() -> Result<()> {
   let device: Device = Device::cuda_if_available(0)?;
@@ -34,7 +30,7 @@ fn main() -> Result<()> {
 
   println!("second_point:\n{second_point}\n");
 
-  let (storage, layout) = second_point.storage_and_layout();
+  let (_storage, layout) = second_point.storage_and_layout();
 
   println!("second_point offset: {}", layout.start_offset());
 
@@ -42,13 +38,13 @@ fn main() -> Result<()> {
 
   println!("second_point shape: {:?}", second_point.shape());
 
-  let (storage, layout) = points.storage_and_layout();
+  let (_storage, layout) = points.storage_and_layout();
 
   println!("points stride: {:?}", layout.stride());
 
   // page 59
 
-  let (storage, layout) = second_point.storage_and_layout();
+  let (_storage, layout) = second_point.storage_and_layout();
 
   println!("\nsecond_point dimensions: {:?}", second_point.dims());
 
@@ -56,6 +52,7 @@ fn main() -> Result<()> {
 
   println!("second_point stride: {:?}", layout.stride());
 
+  #[allow(clippy::single_range_in_vec_init)]
   let updated_second_point: Tensor =
     second_point.slice_assign(&[0..1], &Tensor::new(&[10f32], &device)?)?;
 
@@ -136,7 +133,7 @@ fn main() -> Result<()> {
 
   println!("\npoints_t:\n{points_t}\n");
 
-  let (storage, layout) = points_t.storage_and_layout();
+  let (storage, _layout) = points_t.storage_and_layout();
 
   println!("points_t storage: {:?}", storage);
 
@@ -148,7 +145,7 @@ fn main() -> Result<()> {
 
   println!("points_t_cont stride: {:?}", points_t_cont.stride());
 
-  let (storage, layout) = points_t_cont.storage_and_layout();
+  let (storage, _layout) = points_t_cont.storage_and_layout();
 
   println!("points_t_cont storage: {:?}", storage);
 
