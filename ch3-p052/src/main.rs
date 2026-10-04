@@ -25,7 +25,38 @@ fn main() -> Result<()> {
     &device,
   )?;
 
-  println!("short_points.dtype: {:?}: ", short_points.dtype());
+  // page 53
+
+  println!("short_points.dtype: {:?}", short_points.dtype());
+
+  let double_points =
+    Tensor::ones((10, 2), DType::F32, &device)?.to_dtype(DType::F64)?;
+
+  println!("double_points.dtype: {:?}", double_points.dtype());
+
+  let short_points =
+    Tensor::ones((10, 2), DType::I32, &device)?.to_dtype(DType::I16)?;
+
+  println!("short_points.dtype: {:?}", short_points.dtype());
+
+  let points_64 = Tensor::rand(0., 1., 5, &device)?;
+
+  println!("points_64: {points_64:?}");
+
+  let points_32 = Tensor::rand(0f32, 1., 5, &device)?;
+
+  println!("points_32: {points_32:?}");
+
+  let points_short = points_64.to_dtype(DType::I16)?;
+
+  println!("points_short: {points_short:?}");
+
+  // Causes a run-time error
+  // let product = points_64.broadcast_mul(&points_short)?;
+
+  let product = points_64.broadcast_mul(&points_short.to_dtype(DType::F64)?)?;
+
+  println!("product: {product:?}");
 
   Ok(())
 }
