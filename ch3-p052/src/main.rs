@@ -58,5 +58,15 @@ fn main() -> Result<()> {
 
   println!("product: {product:?}");
 
+  let a = Tensor::ones((3, 2), DType::F32, &device)?;
+
+  let a_t = a.transpose(0, 1)?;
+
+  // page 54
+
+  println!("a.shape: {:?}", a.shape());
+
+  println!("a_t.shape: {:?}", a_t.shape());
+
   Ok(())
 }
