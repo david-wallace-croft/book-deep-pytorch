@@ -1,3 +1,5 @@
+#![doc = include_str!("../../README.md")]
+
 use ::tch::{Device, Kind, Tensor};
 
 fn main() {

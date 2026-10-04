@@ -1,3 +1,5 @@
+#![doc = include_str!("../../README.md")]
+
 use ::candle_core::{DType, Device, IndexOp, Result, Shape, Tensor};
 
 fn main() -> Result<()> {

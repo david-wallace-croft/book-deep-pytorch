@@ -34,6 +34,7 @@
 
 ## Usage
 
+- cargo doc --no-deps --open --workspace
 - cargo test --workspace
 - cargo run -p ch2-p017 --release
 - cargo run -p ch2-p022 --release

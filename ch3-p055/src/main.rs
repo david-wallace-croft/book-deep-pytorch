@@ -1,7 +1,7 @@
 #![doc = include_str!("../../README.md")]
 
 use ::candle_core::{
-  CpuStorage::F32, Device, Layout, Result, Storage, Storage::Cpu, Tensor,
+  CpuStorage::F32, DType, Device, Layout, Result, Storage, Storage::Cpu, Tensor,
 };
 use ::std::sync::RwLockReadGuard;
 
@@ -27,6 +27,8 @@ fn main() -> Result<()> {
     &device,
   )?;
 
+  println!("points:\n{points}\n");
+
   let (points_storage, points_layout): (RwLockReadGuard<'_, Storage>, &Layout) =
     points.storage_and_layout();
 
@@ -47,6 +49,16 @@ fn main() -> Result<()> {
   }
 
   // Probably cannot write directly to Storage
+
+  // page 57
+
+  let a: Tensor = Tensor::ones((3, 2), DType::F32, &device)?;
+
+  println!("\na before zero set:\n{a}");
+
+  a.zero_set()?;
+
+  println!("\na after zero set:\n{a}");
 
   Ok(())
 }
