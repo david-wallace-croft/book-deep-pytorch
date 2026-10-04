@@ -13,7 +13,7 @@ fn main() -> Result<()> {
 
   let value: Tensor = Tensor::new(
     &[
-      4f32, 1f32, 5f32, 3f32, 2f32, 1f32,
+      4f32, 1., 5., 3., 2., 1.,
     ],
     &device,
   )?;
@@ -34,13 +34,13 @@ fn main() -> Result<()> {
   let points: Tensor = Tensor::new(
     &[
       [
-        4f32, 1f32,
+        4f32, 1.,
       ],
       [
-        5f32, 3f32,
+        5., 3.,
       ],
       [
-        2f32, 1f32,
+        2., 1.,
       ],
     ],
     &device,
@@ -59,13 +59,13 @@ fn main() -> Result<()> {
   let points: Tensor = Tensor::new(
     &[
       [
-        4f32, 1f32,
+        4f32, 1.,
       ],
       [
-        5f32, 3f32,
+        5., 3.,
       ],
       [
-        2f32, 1f32,
+        2., 1.,
       ],
     ],
     &device,
@@ -98,7 +98,7 @@ mod test {
 
     let value: Tensor = Tensor::new(
       &[
-        4f32, 1f32, 5f32, 3f32, 2f32, 1f32,
+        4f32, 1., 5., 3., 2., 1.,
       ],
       &device,
     )?;
@@ -107,7 +107,7 @@ mod test {
 
     let expected_tensor: Tensor = Tensor::new(
       &[
-        4f32, 1f32, 5f32, 3f32, 2f32, 1f32,
+        4f32, 1., 5., 3., 2., 1.,
       ],
       &device,
     )?;
@@ -127,7 +127,7 @@ mod test {
 
     let points: Tensor = Tensor::new(
       &[
-        4f32, 1f32, 5f32, 3f32, 2f32, 1f32,
+        4f32, 1., 5., 3., 2., 1.,
       ],
       &device,
     )?;
@@ -143,13 +143,13 @@ mod test {
     let points: Tensor = Tensor::new(
       &[
         [
-          4f32, 1f32,
+          4f32, 1.,
         ],
         [
-          5f32, 3f32,
+          5., 3.,
         ],
         [
-          2f32, 1f32,
+          2., 1.,
         ],
       ],
       &device,
@@ -169,13 +169,13 @@ mod test {
 
     let expected: Vec<Vec<f32>> = vec![
       vec![
-        0f32, 0f32,
+        0f32, 0.,
       ],
       vec![
-        0f32, 0f32,
+        0f32, 0.,
       ],
       vec![
-        0f32, 0f32,
+        0f32, 0.,
       ],
     ];
 
@@ -184,13 +184,13 @@ mod test {
     let points: Tensor = Tensor::new(
       &[
         [
-          4f32, 1f32,
+          4f32, 1.,
         ],
         [
-          5f32, 3f32,
+          5., 3.,
         ],
         [
-          2f32, 1f32,
+          2., 1.,
         ],
       ],
       &device,
@@ -209,13 +209,13 @@ mod test {
     let points: Tensor = Tensor::new(
       &[
         [
-          4f32, 1f32,
+          4f32, 1.,
         ],
         [
-          5f32, 3f32,
+          5., 3.,
         ],
         [
-          2f32, 1f32,
+          2., 1.,
         ],
       ],
       &device,
@@ -226,7 +226,7 @@ mod test {
     let actual: Vec<f32> = p0.to_vec1()?;
 
     let expected: Vec<f32> = vec![
-      4f32, 1f32,
+      4f32, 1.,
     ];
 
     assert_eq!(actual, expected);

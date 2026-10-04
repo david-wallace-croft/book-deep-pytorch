@@ -49,7 +49,7 @@ mod test {
 
     let expected_tensor: Tensor = Tensor::new(
       &[
-        1f32, 1f32, 2f32,
+        1f32, 1., 2.,
       ],
       &device,
     )?;

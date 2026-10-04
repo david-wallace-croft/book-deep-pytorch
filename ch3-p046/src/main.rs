@@ -26,13 +26,13 @@ fn main() -> Result<()> {
   let points: Tensor = Tensor::new(
     &[
       [
-        4f32, 1f32,
+        4f32, 1.,
       ],
       [
-        5f32, 3f32,
+        5., 3.,
       ],
       [
-        2f32, 1f32,
+        2., 1.,
       ],
     ],
     &device,
@@ -76,13 +76,13 @@ mod test {
     let points: Tensor = Tensor::new(
       &[
         [
-          4f32, 1f32,
+          4f32, 1.,
         ],
         [
-          5f32, 3f32,
+          5., 3.,
         ],
         [
-          2f32, 1f32,
+          2., 1.,
         ],
       ],
       &device,
