@@ -1,10 +1,9 @@
-#![expect(unused)]
+#![doc = include_str!("../../README.md")]
 
 use ::candle_core::{
-  DType, Device, IndexOp, Layout, Result, Shape, Storage, Tensor,
+  CpuStorage::F32, Device, Layout, Result, Storage, Storage::Cpu, Tensor,
 };
 use ::std::sync::RwLockReadGuard;
-use candle_core::{CpuStorage::F32, Storage::Cpu};
 
 fn main() -> Result<()> {
   let device: Device = Device::cuda_if_available(0)?;
