@@ -1,4 +1,4 @@
-use candle_core::{DType, Device, IndexOp, Result, Tensor};
+use ::candle_core::{DType, Device, IndexOp, Result, Tensor};
 
 fn main() -> Result<()> {
   let device: Device = Device::cuda_if_available(0)?;

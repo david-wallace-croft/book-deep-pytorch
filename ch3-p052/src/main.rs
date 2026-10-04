@@ -1,6 +1,4 @@
-#![expect(unused)]
-
-use candle_core::{DType, Device, IndexOp, Result, Shape, Tensor};
+use ::candle_core::{DType, Device, Result, Tensor};
 
 fn main() -> Result<()> {
   let device: Device = Device::cuda_if_available(0)?;
