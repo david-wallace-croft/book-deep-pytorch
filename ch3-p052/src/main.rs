@@ -9,7 +9,7 @@ fn main() -> Result<()> {
 
   let double_points = Tensor::ones((10, 2), DType::F64, &device)?;
 
-  println!("double_points.dtype: {:?}: ", double_points.dtype());
+  println!("double_points.dtype: {:?}", double_points.dtype());
 
   let short_points = Tensor::new(
     &[
