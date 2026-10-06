@@ -41,6 +41,11 @@
 - cargo run -p ch3-p043 --release
 - \[...\]
 
+## Images
+
+- Example images were created using Google Gemini
+- And then edited using Microsoft Paint
+
 ## History
 
 - 2026-09-18: Initial release

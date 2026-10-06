@@ -51,6 +51,7 @@ members = [
   "ch3-p052",
   "ch3-p055",
   "ch3-p058",
+  "ch4-p075",
 ]
 
 [workspace.dependencies]
@@ -59,6 +60,7 @@ members = [
 candle-core = "0.11.0"
 # candle-nn = "0.11.0"
 # csv = "=1.4.0"
+image = "0.25.10"
 # linfa = "=0.8.1"
 # ndarray = "=0.17.2"
 # ndarray-rand = "=0.16.0"

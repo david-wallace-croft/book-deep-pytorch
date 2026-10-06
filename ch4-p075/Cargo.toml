@@ -1,0 +1,16 @@
+[package]
+authors.workspace = true
+description.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+name = "ch4-p075"
+publish = false
+readme.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version = "0.0.0-SNAPSHOT"
+
+[dependencies]
+candle-core = { workspace = true }
+image = { workspace = true }
