@@ -90,7 +90,7 @@ fn load_image_to_tensor_1(
 
   let u8_vec: Vec<u8> = rgb_image_buffer.into_raw();
 
-  let u8_tensor: Tensor = Tensor::from_vec(u8_vec, SHAPE, &device)?;
+  let u8_tensor: Tensor = Tensor::from_vec(u8_vec, SHAPE, device)?;
 
   let hwc_tensor: Tensor = u8_tensor.to_dtype(DType::F32)?;
 
