@@ -74,7 +74,7 @@ fn load_image_to_tensor_0(
   Ok(chw_tensor)
 }
 
-// An alternative implementation base on
+// An alternative implementation based on
 // https://github.com/huggingface/candle/blob/main/candle-examples/src/
 //   imagenet.rs
 fn load_image_to_tensor_1(
