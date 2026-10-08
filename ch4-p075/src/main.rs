@@ -22,11 +22,11 @@ fn main() -> Result<()> {
 
   let image_tensor: Tensor = load_image_to_tensor_0(&image_path_buf, &device)?;
 
-  println!("Image tensor shape: {:?}", image_tensor.shape());
+  println!("Image tensor: {image_tensor}\n");
 
   let image_tensor: Tensor = load_image_to_tensor_1(&image_path_buf, &device)?;
 
-  println!("Image tensor shape: {:?}", image_tensor.shape());
+  println!("Image tensor: {image_tensor}\n");
 
   Ok(())
 }
