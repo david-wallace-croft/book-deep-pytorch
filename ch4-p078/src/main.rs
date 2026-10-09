@@ -1,5 +1,7 @@
+use ::candle_core::{Device, Error, Result, Tensor};
+use ::dicom::object::{self, FileDicomObject, InMemDicomObject, ReadError};
+use ::dicom::pixeldata::{self, DecodedPixelData, PixelDecoder};
 use ::std::fs::{self, DirEntry};
-use ::std::io::Result;
 use ::std::path::{Path, PathBuf};
 
 fn main() -> Result<()> {
@@ -9,16 +11,15 @@ fn main() -> Result<()> {
     .join("volumetric-dicom")
     .join("2-LUNG 3.0  B70f-04083");
 
-  match get_dicom_files(scan_dir) {
-    Ok(files) => {
-      println!("Found {} DICOM files:", files.len());
+  let dicom_files: Vec<PathBuf> = get_dicom_files(scan_dir)?;
 
-      for file in &files {
-        println!("{}", file.display());
-      }
-    },
-    Err(e) => eprintln!("Error reading directory: {e}"),
-  }
+  let device: Device = Device::cuda_if_available(0)?;
+
+  println!("\ndevice.is_cuda(): {}\n", device.is_cuda());
+
+  let volume_tensor: Tensor = load_dicom_volume(&dicom_files, &device)?;
+
+  println!("volume_tensor: {:?}", volume_tensor);
 
   Ok(())
 }
@@ -42,4 +43,54 @@ fn get_dicom_files<P: AsRef<Path>>(dir_path: P) -> Result<Vec<PathBuf>> {
   dcm_files.sort();
 
   Ok(dcm_files)
+}
+
+fn load_dicom_volume<P: AsRef<Path>>(
+  slice_paths: &[P],
+  device: &Device,
+) -> Result<Tensor> {
+  let mut slices: Vec<Tensor> = Vec::new();
+
+  if slice_paths.is_empty() {
+    return Err(Error::Msg("No DICOM paths provided".to_string()));
+  }
+
+  for path in slice_paths {
+    let obj: FileDicomObject<InMemDicomObject> = object::open_file(path)
+      .map_err(|e: ReadError| {
+        Error::Msg(format!("Failed to open DICOM: {e}"))
+      })?;
+
+    let decoded: DecodedPixelData<'_> =
+      obj.decode_pixel_data().map_err(|e: pixeldata::Error| {
+        Error::Msg(format!("Pixel decoding failed: {e}"))
+      })?;
+
+    let width: usize = decoded.columns() as usize;
+
+    let height: usize = decoded.rows() as usize;
+
+    // Channels is usually one for grayscale
+
+    let channels: usize = decoded.samples_per_pixel() as usize;
+
+    let shape: (usize, usize, usize) = (channels, height, width);
+
+    let raw_pixels: Vec<f32> =
+      decoded
+        .to_vec::<f32>()
+        .map_err(|e: dicom::pixeldata::Error| {
+          Error::Msg(format!("Pixel conversion failed: {e}"))
+        })?;
+
+    let slice_tensor: Tensor = Tensor::from_vec(raw_pixels, shape, device)?;
+
+    slices.push(slice_tensor);
+  }
+
+  // Channels, Depth, Channels, Height, Width
+
+  let volume_tensor: Tensor = Tensor::stack(&slices, 1)?;
+
+  Ok(volume_tensor)
 }

@@ -13,4 +13,4 @@ version = "0.0.0-SNAPSHOT"
 
 [dependencies]
 candle-core = { workspace = true }
-image = { workspace = true }
+dicom = { workspace = true }
