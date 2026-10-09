@@ -53,14 +53,16 @@ members = [
   "ch3-p058",
   "ch4-p075",
   "ch4-p078",
+  "ch4-p081",
 ]
 
 [workspace.dependencies]
+anyhow = "1.0.104"
 # autodiff = "=0.7.0"
 # autograd = "=1.1.1"
 candle-core = "0.11.0"
 # candle-nn = "0.11.0"
-# csv = "=1.4.0"
+csv = "=1.4.0"
 dicom = "0.10.0"
 image = "0.25.10"
 # linfa = "=0.8.1"
