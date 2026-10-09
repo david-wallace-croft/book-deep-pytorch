@@ -395,6 +395,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "ch4-p078"
+version = "0.0.0-SNAPSHOT"
+dependencies = [
+ "candle-core",
+ "image",
+]
+
+[[package]]
 name = "cipher"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
