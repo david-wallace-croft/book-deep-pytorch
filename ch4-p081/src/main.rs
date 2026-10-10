@@ -1,5 +1,5 @@
 use ::anyhow::Result;
-use ::candle_core::{Device, Tensor};
+use ::candle_core::{DType, Device, IndexOp, Tensor};
 use ::csv::{Reader, ReaderBuilder, StringRecord};
 use ::std::fs::File;
 use ::std::path::{Path, PathBuf};
@@ -22,7 +22,7 @@ fn main() -> Result<()> {
 
   println!("\n{headers:?}");
 
-  let mut data: Vec<f32> = Vec::new();
+  let mut f32_vec: Vec<f32> = Vec::new();
 
   let mut rows: usize = 0;
 
@@ -34,7 +34,7 @@ fn main() -> Result<()> {
     for field in record.iter() {
       let value: f32 = field.parse()?;
 
-      data.push(value);
+      f32_vec.push(value);
     }
   }
 
@@ -42,9 +42,24 @@ fn main() -> Result<()> {
 
   println!("\ndevice.is_cuda(): {}\n", device.is_cuda());
 
-  let tensor = Tensor::from_vec(data, (rows, columns), &device)?;
+  let data_tensor: Tensor =
+    Tensor::from_vec(f32_vec, (rows, columns), &device)?;
 
-  println!("{tensor:?}");
+  println!("Data:\n{data_tensor:?}\n");
+
+  let rank: usize = data_tensor.rank();
+
+  let column_dimension_index: usize = rank - 1;
+
+  let column_dimension_size = data_tensor.dim(column_dimension_index)?;
+
+  let score_column_index = column_dimension_size - 1;
+
+  let scores_f32: Tensor = data_tensor.i((.., score_column_index))?;
+
+  let scores: Tensor = scores_f32.to_dtype(DType::U8)?;
+
+  println!("Scores:\n{scores}\n");
 
   Ok(())
 }
