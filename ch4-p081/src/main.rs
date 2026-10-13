@@ -46,22 +46,25 @@ fn main() -> Result<()> {
 
   // page 82
 
-  let data_tensor: Tensor =
-    Tensor::from_vec(f32_vec, (rows, columns), &device)?;
+  let wineq: Tensor = Tensor::from_vec(f32_vec, (rows, columns), &device)?;
+
+  println!("wineq:\n{wineq:?}\n");
 
   // page 83
 
-  println!("Data:\n{data_tensor:?}\n");
-
-  let rank: usize = data_tensor.rank();
+  let rank: usize = wineq.rank();
 
   let column_dimension_index: usize = rank - 1;
 
-  let column_dimension_size = data_tensor.dim(column_dimension_index)?;
+  let column_dimension_size: usize = wineq.dim(column_dimension_index)?;
 
-  let score_column_index = column_dimension_size - 1;
+  let score_column_index: usize = column_dimension_size - 1;
 
-  let scores_f32: Tensor = data_tensor.i((.., score_column_index))?;
+  let data: Tensor = wineq.i((.., ..score_column_index))?;
+
+  println!("data:\n{data}\n");
+
+  let scores_f32: Tensor = wineq.i((.., score_column_index))?;
 
   let scores: Tensor = scores_f32.to_dtype(DType::U8)?;
 
@@ -109,6 +112,12 @@ fn main() -> Result<()> {
   // "target_unsqueezed" in the book is "indices" here
 
   println!("indices:\n{indices}\n");
+
+  // page 85 section 4.3.5
+
+  let data_mean = data.mean(0)?;
+
+  println!("data_mean:\n{data_mean}\n");
 
   Ok(())
 }
