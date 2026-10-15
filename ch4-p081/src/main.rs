@@ -119,5 +119,24 @@ fn main() -> Result<()> {
 
   println!("data_mean:\n{data_mean}\n");
 
+  // page 86
+
+  let data_var = data.var(0)?;
+
+  println!("data_var:\n{data_var}\n");
+
+  let data_deviation = data.broadcast_sub(&data_mean)?;
+
+  println!("data_deviation:\n{data_deviation}\n");
+
+  let data_standard_deviation = data_var.sqrt()?;
+
+  println!("data_standard_deviation:\n{data_standard_deviation}\n");
+
+  let data_normalized =
+    data_deviation.broadcast_div(&data_standard_deviation)?;
+
+  println!("data_normalized:\n{data_normalized}\n");
+
   Ok(())
 }
