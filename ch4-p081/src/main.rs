@@ -9,20 +9,22 @@ fn main() -> Result<()> {
 
   let cargo_manifest_dir: &str = env!("CARGO_MANIFEST_DIR");
 
-  let csv_file: PathBuf = Path::new(cargo_manifest_dir)
+  let wine_path: PathBuf = Path::new(cargo_manifest_dir)
     .join("tabular-wine")
     .join("winequality-white.csv");
 
   let mut file_reader: Reader<File> = ReaderBuilder::new()
     .has_headers(true)
     .delimiter(b';')
-    .from_path(csv_file)?;
+    .from_path(wine_path)?;
 
-  let headers: &StringRecord = file_reader.headers()?;
+  let col_list: &StringRecord = file_reader.headers()?;
 
-  let columns: usize = headers.len();
+  println!("\n{col_list:?}");
 
-  println!("\n{headers:?}");
+  // page 82
+
+  let columns: usize = col_list.len();
 
   let mut f32_vec: Vec<f32> = Vec::new();
 
@@ -40,11 +42,7 @@ fn main() -> Result<()> {
     }
   }
 
-  let device: Device = Device::cuda_if_available(0)?;
-
-  println!("\ndevice.is_cuda(): {}\n", device.is_cuda());
-
-  // page 82
+  let device: Device = Device::Cpu;
 
   let wineq: Tensor = Tensor::from_vec(f32_vec, (rows, columns), &device)?;
 
@@ -64,11 +62,11 @@ fn main() -> Result<()> {
 
   println!("data:\n{data}\n");
 
-  let scores_f32: Tensor = wineq.i((.., score_column_index))?;
+  let target: Tensor = wineq.i((.., score_column_index))?;
 
-  let scores: Tensor = scores_f32.to_dtype(DType::U8)?;
+  let target: Tensor = target.to_dtype(DType::U8)?;
 
-  println!("Scores:\n{scores}\n");
+  println!("target:\n{target}\n");
 
   // page 84
 
@@ -76,9 +74,9 @@ fn main() -> Result<()> {
 
   println!("\ntarget_onehot:\n{target_onehot}\n");
 
-  let indices = scores.unsqueeze(1)?;
+  let target_unsqueezed = target.unsqueeze(1)?;
 
-  println!("indices:\n{indices}\n");
+  println!("target_unsqueezed:\n{target_unsqueezed}\n");
 
   let source = Tensor::ones((rows, 1), DType::F32, &device)?;
 
@@ -89,7 +87,7 @@ fn main() -> Result<()> {
   // https://docs.pytorch.org/docs/main/generated/
   //   torch.Tensor.scatter_.html#torch.Tensor.scatter_
 
-  let target_onehot = target_onehot.scatter(&indices, &source, 1)?;
+  let target_onehot = target_onehot.scatter(&target_unsqueezed, &source, 1)?;
 
   println!("target_onehot:\n{target_onehot}\n");
 
@@ -99,7 +97,7 @@ fn main() -> Result<()> {
 
   println!("random_indices:\n{random_indices}\n");
 
-  let random_scores = scores.i(&random_indices)?;
+  let random_scores = target.i(&random_indices)?;
 
   println!("random_scores:\n{random_scores}\n");
 
@@ -109,9 +107,7 @@ fn main() -> Result<()> {
 
   // page 85
 
-  // "target_unsqueezed" in the book is "indices" here
-
-  println!("indices:\n{indices}\n");
+  println!("target_unsqueezed:\n{target_unsqueezed}\n");
 
   // page 85 section 4.3.5
 
@@ -137,6 +133,44 @@ fn main() -> Result<()> {
     data_deviation.broadcast_div(&data_standard_deviation)?;
 
   println!("data_normalized:\n{data_normalized}\n");
+
+  // page 87
+
+  let bad_indexes = target.le(3u8)?;
+
+  println!("bad_indexes:\n{bad_indexes}\n");
+
+  let bad_indexes_sum = bad_indexes.sum(0)?;
+
+  println!("bad_indexes_sum:\n{bad_indexes_sum}\n");
+
+  let scores: Vec<u8> = target.to_vec1()?;
+
+  let bad_indices_vec: Vec<u32> = scores
+    .iter()
+    .enumerate()
+    .filter_map(|(index, &score): (usize, &u8)| {
+      if score <= 3 {
+        Some(index as u32)
+      } else {
+        None
+      }
+    })
+    .collect();
+
+  let bad_indices: Tensor = Tensor::new(bad_indices_vec, &device)?;
+
+  println!("bad_indices:\n{bad_indices}\n");
+
+  let bad_data_with_score = wineq.index_select(&bad_indices, 0)?;
+
+  println!("bad_data_with_score:\n{bad_data_with_score}\n");
+
+  let data_contiguous = data.contiguous()?;
+
+  let bad_data = data_contiguous.index_select(&bad_indices, 0)?;
+
+  println!("bad_data:\n{bad_data}\n");
 
   Ok(())
 }
