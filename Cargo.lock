@@ -467,6 +467,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ch4-p089"
+version = "0.0.0-SNAPSHOT"
+dependencies = [
+ "anyhow",
+ "candle-core",
+ "csv",
+]
+
+[[package]]
 name = "chrono"
 version = "0.4.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
