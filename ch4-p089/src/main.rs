@@ -62,5 +62,11 @@ fn main() -> Result<()> {
 
   println!("bikes:\n{bikes}\n");
 
+  // page 92
+
+  println!("bikes.shape:\n{:?}\n", bikes.shape());
+
+  println!("bikes.stride:\n{:?}\n", bikes.stride());
+
   Ok(())
 }
