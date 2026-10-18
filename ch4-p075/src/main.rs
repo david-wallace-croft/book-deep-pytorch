@@ -14,6 +14,8 @@ const SHAPE: (usize, usize, usize) =
   (IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS);
 
 fn main() -> Result<()> {
+  // page 75
+
   let device: Device = Device::cuda_if_available(0)?;
 
   println!("\ndevice.is_cuda(): {}\n", device.is_cuda());
