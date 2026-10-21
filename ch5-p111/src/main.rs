@@ -19,14 +19,11 @@ fn main() -> Result<()> {
     35.7, 55.9, 58.2, 81.9, 56.3, 48.9, 33.9, 21.8, 48.4, 60.4, 68.4,
   ];
 
-  let data = [
-    (1.0, 2.0),
-    (2.3, 3.1),
-    (3.0, 2.5),
-    (4.5, 5.0),
-    (5.2, 4.2),
-    (6.1, 7.8),
-  ];
+  let data: Vec<(f64, f64)> = tc
+    .iter()
+    .zip(tu.iter())
+    .map(|(c, u)| (*c as f64, *u as f64))
+    .collect();
 
   let cargo_manifest_dir: &str = env!("CARGO_MANIFEST_DIR");
 
@@ -40,13 +37,13 @@ fn main() -> Result<()> {
 
   let mut chart = ChartBuilder::on(&root)
     .caption(
-      "X-Y Measurements Scatter Plot",
+      "Celsius-Fahrenheit Scatter Plot",
       ("sans-serif", 25).into_font(),
     )
     .margin(10)
     .x_label_area_size(30)
     .y_label_area_size(30)
-    .build_cartesian_2d(0.0..7.0, 0.0..9.0)?;
+    .build_cartesian_2d(-5.0..30., 15.0..85.)?;
 
   chart.configure_mesh().draw()?;
 
