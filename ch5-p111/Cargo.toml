@@ -13,5 +13,4 @@ version = "0.0.0-SNAPSHOT"
 
 [dependencies]
 anyhow = { workspace = true }
-candle-core = { workspace = true }
 plotters = { workspace = true }

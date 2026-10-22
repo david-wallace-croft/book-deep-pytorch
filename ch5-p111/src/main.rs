@@ -1,12 +1,6 @@
-#![expect(unused)]
-
 use ::anyhow::Result;
-use ::candle_core::{DType, Device, Tensor};
 use ::plotters::prelude::*;
-use ::std::collections::HashMap;
-use ::std::fs;
 use ::std::path::{Path, PathBuf};
-use ::std::str::Chars;
 
 fn main() -> Result<()> {
   // page 111

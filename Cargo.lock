@@ -493,6 +493,14 @@ name = "ch5-p111"
 version = "0.0.0-SNAPSHOT"
 dependencies = [
  "anyhow",
+ "plotters",
+]
+
+[[package]]
+name = "ch5-p114"
+version = "0.0.0-SNAPSHOT"
+dependencies = [
+ "anyhow",
  "candle-core",
  "plotters",
 ]
