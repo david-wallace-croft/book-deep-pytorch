@@ -1,11 +1,6 @@
 #![expect(unused)]
 
 use ::candle_core::{DType, Device, Result, Tensor};
-use ::plotters::prelude::*;
-use ::std::collections::HashMap;
-use ::std::fs;
-use ::std::path::{Path, PathBuf};
-use ::std::str::Chars;
 
 const DELTA: f32 = 0.1;
 const LEARNING_RATE: f32 = 1e-2;
@@ -97,6 +92,64 @@ fn central_difference_approximation(
   let twice_delta = Tensor::new(&[2. * DELTA], device)?;
 
   loss_difference.broadcast_div(&twice_delta)
+}
+
+fn dloss_fn(
+  t_p: &Tensor,
+  t_c: &Tensor,
+) -> Result<Tensor> {
+  // page 120
+  // Easier to express the equation when using f64
+  // Assuming dim(0) is equivalent to PyTorch size(0)
+  let dsq_diffs = (2. * (t_p - t_c)?)? / t_p.dim(0)? as f64;
+
+  #[allow(clippy::let_and_return)]
+  dsq_diffs
+}
+
+fn dmodel_db(
+  _t_u: &Tensor,
+  _w: &Tensor,
+  _b: &Tensor,
+) -> f64 {
+  // page 120
+  1f64
+}
+
+fn dmodel_dw<'a>(
+  t_u: &'a Tensor,
+  _w: &Tensor,
+  _b: &Tensor,
+) -> &'a Tensor {
+  // page 120
+  t_u
+}
+
+fn grad_fn(
+  t_u: &Tensor,
+  t_c: &Tensor,
+  t_p: &Tensor,
+  w: &Tensor,
+  b: &Tensor,
+) -> Result<Tensor> {
+  // page 120
+  let dloss_dtp: Tensor = dloss_fn(t_p, t_c)?;
+
+  let dloss_dw: Tensor = (&dloss_dtp * dmodel_dw(t_u, w, b))?;
+
+  let dloss_db: Tensor = (dloss_dtp * dmodel_db(t_u, w, b))?;
+
+  let dloss_dw_sum: Tensor = dloss_dw.sum_all()?;
+
+  let dloss_db_sum: Tensor = dloss_db.sum_all()?;
+
+  Tensor::stack(
+    &[
+      dloss_dw_sum,
+      dloss_db_sum,
+    ],
+    0,
+  )
 }
 
 fn loss_fn(
