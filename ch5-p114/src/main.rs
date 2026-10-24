@@ -1,18 +1,19 @@
 #![expect(unused)]
 
-use ::candle_core::{DType, Device, Result, Tensor};
+use ::candle_core::{DType, Device, IndexOp, Result, Tensor};
 
-const DELTA: f32 = 0.1;
-const LEARNING_RATE: f32 = 1e-2;
+const DELTA: f64 = 0.1;
+const EPOCHS: usize = 100;
+const LEARNING_RATE: f64 = 1e-4;
 
 fn main() -> Result<()> {
   // page 114
 
-  let t_c: [f32; 11] = [
+  let t_c: [f64; 11] = [
     0.5, 14., 15., 28., 11., 8., 3., -4., 6., 13., 21.,
   ];
 
-  let t_u: [f32; 11] = [
+  let t_u: [f64; 11] = [
     35.7, 55.9, 58.2, 81.9, 56.3, 48.9, 33.9, 21.8, 48.4, 60.4, 68.4,
   ];
 
@@ -26,11 +27,11 @@ fn main() -> Result<()> {
 
   println!("t_u:\n{t_u}\n");
 
-  let w = Tensor::ones(&[], DType::F32, &device)?;
+  let w = Tensor::ones(&[], DType::F64, &device)?;
 
   println!("w:\n{w}\n");
 
-  let b = Tensor::zeros(&[], DType::F32, &device)?;
+  let b = Tensor::zeros(&[], DType::F64, &device)?;
 
   println!("b:\n{b}\n");
 
@@ -62,6 +63,19 @@ fn main() -> Result<()> {
   let w = w.broadcast_sub(&w_delta)?;
 
   println!("w:\n{w}\n");
+
+  // page 122
+
+  let mut params = Tensor::new(
+    &[
+      1., 0.,
+    ],
+    &device,
+  )?;
+
+  let params = training_loop(EPOCHS, LEARNING_RATE, params, &t_u, &t_c)?;
+
+  println!("\nparams:\n{params}\n");
 
   Ok(())
 }
@@ -167,4 +181,37 @@ fn model(
   b: &Tensor,
 ) -> Result<Tensor> {
   t_u.broadcast_mul(w)?.broadcast_add(b)
+}
+
+fn training_loop(
+  n_epochs: usize,
+  learning_rate: f64,
+  mut params: Tensor,
+  t_u: &Tensor,
+  t_c: &Tensor,
+) -> Result<Tensor> {
+  // pages 121-122
+  for epoch in 1..=n_epochs {
+    let w = params.i(0)?;
+
+    let b = params.i(1)?;
+
+    let t_p = model(t_u, &w, &b)?;
+
+    let loss = loss_fn(&t_p, t_c)?;
+
+    let grad = grad_fn(t_u, t_c, &t_p, &w, &b)?;
+
+    let params_delta = (learning_rate * grad)?;
+
+    params = (params - params_delta)?;
+
+    let loss_scalar: f64 = loss.to_scalar()?;
+
+    if epoch % 10 == 0 {
+      println!("Epoch {epoch:03}, Loss {loss_scalar:.2}");
+    }
+  }
+
+  Ok(params)
 }
