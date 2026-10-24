@@ -3,8 +3,9 @@
 use ::candle_core::{DType, Device, IndexOp, Result, Tensor};
 
 const DELTA: f64 = 0.1;
-const EPOCHS: usize = 100;
+const EPOCHS: usize = 300_000;
 const LEARNING_RATE: f64 = 1e-4;
+const PRINT_INTERVAL: usize = 10_000;
 
 fn main() -> Result<()> {
   // page 114
@@ -208,8 +209,8 @@ fn training_loop(
 
     let loss_scalar: f64 = loss.to_scalar()?;
 
-    if epoch % 10 == 0 {
-      println!("Epoch {epoch:03}, Loss {loss_scalar:.2}");
+    if epoch % PRINT_INTERVAL == 0 {
+      println!("Epoch {epoch:06}, Loss {loss_scalar:.2}");
     }
   }
 
