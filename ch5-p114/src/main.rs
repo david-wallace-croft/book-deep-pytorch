@@ -1,11 +1,6 @@
-#![expect(unused)]
-
 use ::candle_core::{DType, Device, IndexOp, Result, Tensor};
 
 const DELTA: f64 = 0.1;
-const EPOCHS: usize = 300_000;
-const LEARNING_RATE: f64 = 1e-4;
-const PRINT_INTERVAL: usize = 10_000;
 
 fn main() -> Result<()> {
   // page 114
@@ -20,63 +15,97 @@ fn main() -> Result<()> {
 
   let device: Device = Device::Cpu;
 
-  let t_c = Tensor::new(&t_c, &device)?;
+  let t_c: Tensor = Tensor::new(&t_c, &device)?;
 
   println!("t_c:\n{t_c}\n");
 
-  let t_u = Tensor::new(&t_u, &device)?;
+  let t_u: Tensor = Tensor::new(&t_u, &device)?;
 
   println!("t_u:\n{t_u}\n");
 
-  let w = Tensor::ones(&[], DType::F64, &device)?;
+  let w: Tensor = Tensor::ones(&[], DType::F64, &device)?;
 
   println!("w:\n{w}\n");
 
-  let b = Tensor::zeros(&[], DType::F64, &device)?;
+  let b: Tensor = Tensor::zeros(&[], DType::F64, &device)?;
 
   println!("b:\n{b}\n");
 
-  let t_p = model(&t_u, &w, &b)?;
+  let t_p: Tensor = model(&t_u, &w, &b)?;
 
   println!("t_p:\n{t_p}\n");
 
-  let loss = loss_fn(&t_p, &t_c)?;
+  let loss: Tensor = loss_fn(&t_p, &t_c)?;
 
   println!("loss:\n{loss}\n");
 
   // page 117
 
-  let loss_rate_of_change_w =
+  let loss_rate_of_change_w: Tensor =
     central_difference_approximation(&b, &device, &t_c, &t_u, &w)?;
 
   println!("loss_rate_of_change_w:\n{loss_rate_of_change_w}\n");
 
   // page 118
 
-  let learning_rate = Tensor::new(&[LEARNING_RATE], &device)?;
+  let learning_rate: Tensor = Tensor::new(&[1e-2], &device)?;
 
   println!("learning_rate:\n{learning_rate}\n");
 
-  let w_delta = loss_rate_of_change_w.broadcast_mul(&learning_rate)?;
+  let w_delta: Tensor = loss_rate_of_change_w.broadcast_mul(&learning_rate)?;
 
   println!("w_delta:\n{w_delta}\n");
 
-  let w = w.broadcast_sub(&w_delta)?;
+  let w: Tensor = w.broadcast_sub(&w_delta)?;
 
   println!("w:\n{w}\n");
 
   // page 122
 
-  let mut params = Tensor::new(
+  let params_initial: &Tensor = &Tensor::new(
     &[
       1., 0.,
     ],
     &device,
   )?;
 
-  let params = training_loop(EPOCHS, LEARNING_RATE, params, &t_u, &t_c)?;
+  let n_epochs: usize = 100;
 
-  println!("\nparams:\n{params}\n");
+  let learning_rate: f64 = 1e-2;
+
+  let params_trained: Tensor =
+    training_loop(n_epochs, learning_rate, params_initial, &t_u, &t_c)?;
+
+  println!("\nparams_trained:\n{params_trained}\n");
+
+  // page 123
+
+  let learning_rate: f64 = 1e-4;
+
+  let params_trained: Tensor =
+    training_loop(n_epochs, learning_rate, params_initial, &t_u, &t_c)?;
+
+  println!("\nparams_trained:\n{params_trained}\n");
+
+  // pages 124-125
+
+  let learning_rate: f64 = 1e-2;
+
+  let t_un: Tensor = (t_u / 10.)?;
+
+  let params_trained: Tensor =
+    training_loop(n_epochs, learning_rate, params_initial, &t_un, &t_c)?;
+
+  println!("\nparams_trained:\n{params_trained}\n");
+
+  // page 126
+
+  let n_epochs: usize = 5_000;
+
+  let params_trained: Tensor =
+    training_loop(n_epochs, learning_rate, params_initial, &t_un, &t_c)?;
+
+  println!("\nparams_trained:\n{params_trained}\n");
 
   Ok(())
 }
@@ -187,30 +216,38 @@ fn model(
 fn training_loop(
   n_epochs: usize,
   learning_rate: f64,
-  mut params: Tensor,
+  params_initial: &Tensor,
   t_u: &Tensor,
   t_c: &Tensor,
 ) -> Result<Tensor> {
+  let print_interval: usize = n_epochs.div_ceil(10);
+
+  let mut params: Tensor = params_initial.clone();
+
   // pages 121-122
   for epoch in 1..=n_epochs {
-    let w = params.i(0)?;
+    let w: Tensor = params.i(0)?;
 
-    let b = params.i(1)?;
+    let b: Tensor = params.i(1)?;
 
-    let t_p = model(t_u, &w, &b)?;
+    let t_p: Tensor = model(t_u, &w, &b)?;
 
-    let loss = loss_fn(&t_p, t_c)?;
+    let loss: Tensor = loss_fn(&t_p, t_c)?;
 
-    let grad = grad_fn(t_u, t_c, &t_p, &w, &b)?;
+    let grad: Tensor = grad_fn(t_u, t_c, &t_p, &w, &b)?;
 
-    let params_delta = (learning_rate * grad)?;
+    let params_delta: Tensor = (learning_rate * grad)?;
 
     params = (params - params_delta)?;
 
     let loss_scalar: f64 = loss.to_scalar()?;
 
-    if epoch % PRINT_INTERVAL == 0 {
-      println!("Epoch {epoch:06}, Loss {loss_scalar:.2}");
+    if epoch % print_interval == 0 {
+      println!("Epoch {epoch}, Loss {loss_scalar}");
+
+      if !loss_scalar.is_normal() {
+        break;
+      }
     }
   }
 
