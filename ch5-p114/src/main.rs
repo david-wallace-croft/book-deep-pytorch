@@ -1,25 +1,27 @@
 use ::candle_core::{DType, Device, IndexOp, Result, Tensor};
+use ::plotters::prelude::*;
+use ::std::path::{Path, PathBuf};
 
 const DELTA: f64 = 0.1;
 
-fn main() -> Result<()> {
+fn main() -> ::anyhow::Result<()> {
   // page 114
 
-  let t_c: [f64; 11] = [
+  let t_c_array: [f64; 11] = [
     0.5, 14., 15., 28., 11., 8., 3., -4., 6., 13., 21.,
   ];
 
-  let t_u: [f64; 11] = [
+  let t_u_array: [f64; 11] = [
     35.7, 55.9, 58.2, 81.9, 56.3, 48.9, 33.9, 21.8, 48.4, 60.4, 68.4,
   ];
 
   let device: Device = Device::Cpu;
 
-  let t_c: Tensor = Tensor::new(&t_c, &device)?;
+  let t_c: Tensor = Tensor::new(&t_c_array, &device)?;
 
   println!("t_c:\n{t_c}\n");
 
-  let t_u: Tensor = Tensor::new(&t_u, &device)?;
+  let t_u: Tensor = Tensor::new(&t_u_array, &device)?;
 
   println!("t_u:\n{t_u}\n");
 
@@ -91,7 +93,7 @@ fn main() -> Result<()> {
 
   let learning_rate: f64 = 1e-2;
 
-  let t_un: Tensor = (t_u / 10.)?;
+  let t_un: Tensor = (&t_u / 10.)?;
 
   let params_trained: Tensor =
     training_loop(n_epochs, learning_rate, params_initial, &t_un, &t_c)?;
@@ -106,6 +108,22 @@ fn main() -> Result<()> {
     training_loop(n_epochs, learning_rate, params_initial, &t_un, &t_c)?;
 
   println!("\nparams_trained:\n{params_trained}\n");
+
+  // page 127
+
+  let w: Tensor = params_trained.i(0)?;
+
+  let b: Tensor = params_trained.i(1)?;
+
+  let t_p: Tensor = model(&t_un, &w, &b)?;
+
+  let t_p_vec: Vec<f64> = t_p.to_vec1()?;
+
+  let w_f64: f64 = w.to_scalar()?;
+
+  let b_f64: f64 = b.to_scalar()?;
+
+  plot_data(&t_p_vec, &t_u_array, w_f64, b_f64)?;
 
   Ok(())
 }
@@ -211,6 +229,67 @@ fn model(
   b: &Tensor,
 ) -> Result<Tensor> {
   t_u.broadcast_mul(w)?.broadcast_add(b)
+}
+
+fn plot_data(
+  t_p: &[f64],
+  t_u: &[f64],
+  w: f64,
+  b: f64,
+) -> ::anyhow::Result<()> {
+  let data: Vec<(f64, f64)> = t_u
+    .iter()
+    .zip(t_p.iter())
+    .map(|(u, p)| (*u as f64, *p as f64))
+    .collect();
+
+  let cargo_manifest_dir: &str = env!("CARGO_MANIFEST_DIR");
+
+  let scatter_plot_path: PathBuf =
+    Path::new(cargo_manifest_dir).join("linear-fit.png");
+
+  let root =
+    BitMapBackend::new(&scatter_plot_path, (640, 480)).into_drawing_area();
+
+  root.fill(&WHITE)?;
+
+  let mut chart = ChartBuilder::on(&root)
+    .caption(
+      "Celsius-Fahrenheit Linear Fit",
+      ("sans-serif", 25).into_font(),
+    )
+    .margin(10)
+    .x_label_area_size(30)
+    .y_label_area_size(30)
+    .build_cartesian_2d(15.0..85., -10.0..30.)?;
+
+  chart.configure_mesh().draw()?;
+
+  chart.draw_series(LineSeries::new(
+    (0..=1)
+      .map(|x| x as f64 * 70. + 15.)
+      .map(|x| (x, (x - 32.) * 100. / 180.)),
+    &BLACK,
+  ))?;
+
+  chart.draw_series(LineSeries::new(
+    (0..=1)
+      .map(|x| x as f64 * 70. + 15.)
+      .map(|x| (x, (x + b) * w)),
+    &BLUE,
+  ))?;
+
+  chart.draw_series(LineSeries::new(data.iter().copied(), &GREEN))?;
+
+  chart.draw_series(
+    data
+      .iter()
+      .map(|&(x, y)| Circle::new((x, y), 5, RED.filled())),
+  )?;
+
+  root.present()?;
+
+  Ok(())
 }
 
 fn training_loop(

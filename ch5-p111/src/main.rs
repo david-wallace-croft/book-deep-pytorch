@@ -5,19 +5,16 @@ use ::std::path::{Path, PathBuf};
 fn main() -> Result<()> {
   // page 111
 
-  let tc: [f32; 11] = [
+  let tc: [f64; 11] = [
     0.5, 14., 15., 28., 11., 8., 3., -4., 6., 13., 21.,
   ];
 
-  let tu: [f32; 11] = [
+  let tu: [f64; 11] = [
     35.7, 55.9, 58.2, 81.9, 56.3, 48.9, 33.9, 21.8, 48.4, 60.4, 68.4,
   ];
 
-  let data: Vec<(f64, f64)> = tc
-    .iter()
-    .zip(tu.iter())
-    .map(|(c, u)| (*c as f64, *u as f64))
-    .collect();
+  let data: Vec<(f64, f64)> =
+    tu.iter().zip(tc.iter()).map(|(u, c)| (*u, *c)).collect();
 
   let cargo_manifest_dir: &str = env!("CARGO_MANIFEST_DIR");
 
@@ -31,13 +28,13 @@ fn main() -> Result<()> {
 
   let mut chart = ChartBuilder::on(&root)
     .caption(
-      "Celsius-Fahrenheit Scatter Plot",
+      "Unknown to Celsius Scatter Plot",
       ("sans-serif", 25).into_font(),
     )
     .margin(10)
     .x_label_area_size(30)
     .y_label_area_size(30)
-    .build_cartesian_2d(-5.0..30., 15.0..85.)?;
+    .build_cartesian_2d(15.0..85., -5.0..30.)?;
 
   chart.configure_mesh().draw()?;
 
