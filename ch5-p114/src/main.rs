@@ -237,11 +237,8 @@ fn plot_data(
   w: f64,
   b: f64,
 ) -> ::anyhow::Result<()> {
-  let data: Vec<(f64, f64)> = t_u
-    .iter()
-    .zip(t_p.iter())
-    .map(|(u, p)| (*u as f64, *p as f64))
-    .collect();
+  let data: Vec<(f64, f64)> =
+    t_u.iter().zip(t_p.iter()).map(|(u, p)| (*u, *p)).collect();
 
   let cargo_manifest_dir: &str = env!("CARGO_MANIFEST_DIR");
 
