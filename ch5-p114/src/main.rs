@@ -1,4 +1,4 @@
-use ::candle_core::{DType, Device, IndexOp, Result, Tensor};
+use ::candle_core::{DType, Device, IndexOp, Result, Tensor, Var};
 use ::plotters::prelude::*;
 use ::std::path::{Path, PathBuf};
 
@@ -124,6 +124,29 @@ fn main() -> ::anyhow::Result<()> {
   let b_f64: f64 = b.to_scalar()?;
 
   plot_data(&t_p_vec, &t_u_array, w_f64, b_f64)?;
+
+  // page 128
+
+  let params_var: &Var = &Var::new(
+    &[
+      3., 4.,
+    ],
+    &device,
+  )?;
+
+  dbg!(params_var);
+
+  let params_var_tensor: &Tensor = params_var.as_tensor();
+
+  let y = (params_var_tensor * params_var_tensor)?;
+
+  let loss = y.sum_all()?;
+
+  let grads = loss.backward()?;
+
+  let grad_x = grads.get(&params_var_tensor).unwrap();
+
+  dbg!(grad_x);
 
   Ok(())
 }
