@@ -1,3 +1,4 @@
+use ::candle_core::backprop::GradStore;
 use ::candle_core::{DType, Device, IndexOp, Result, Tensor, Var};
 use ::plotters::prelude::*;
 use ::std::path::{Path, PathBuf};
@@ -129,7 +130,7 @@ fn main() -> ::anyhow::Result<()> {
 
   let params_var: &Var = &Var::new(
     &[
-      3., 4.,
+      1., 0.,
     ],
     &device,
   )?;
@@ -138,15 +139,19 @@ fn main() -> ::anyhow::Result<()> {
 
   let params_var_tensor: &Tensor = params_var.as_tensor();
 
-  let y = (params_var_tensor * params_var_tensor)?;
+  // page 129
 
-  let loss = y.sum_all()?;
+  let w_var_tensor: Tensor = params_var_tensor.i(0)?;
 
-  let grads = loss.backward()?;
+  let b_var_tensor: Tensor = params_var_tensor.i(1)?;
 
-  let grad_x = grads.get(&params_var_tensor).unwrap();
+  let t_p: Tensor = model(&t_u, &w_var_tensor, &b_var_tensor)?;
 
-  dbg!(grad_x);
+  let loss: Tensor = loss_fn(&t_p, &t_c)?;
+
+  let grads: GradStore = loss.backward()?;
+
+  dbg!(grads);
 
   Ok(())
 }
