@@ -1,3 +1,7 @@
+#![warn(clippy::pedantic)]
+#![expect(clippy::similar_names)]
+#![expect(clippy::cast_precision_loss)]
+
 use ::candle_core::backprop::GradStore;
 use ::candle_core::{DType, Device, IndexOp, Result, Tensor, Var};
 use ::plotters::prelude::*;
@@ -292,15 +296,15 @@ fn plot_data(
 
   chart.draw_series(LineSeries::new(
     (0..=1)
-      .map(|x| x as f64 * 70. + 15.)
-      .map(|x| (x, (x - 32.) * 100. / 180.)),
+      .map(|x: i32| f64::from(x) * 70. + 15.)
+      .map(|x: f64| (x, (x - 32.) * 100. / 180.)),
     &BLACK,
   ))?;
 
   chart.draw_series(LineSeries::new(
     (0..=1)
-      .map(|x| x as f64 * 70. + 15.)
-      .map(|x| (x, (x + b) * w)),
+      .map(|x: i32| f64::from(x) * 70. + 15.)
+      .map(|x: f64| (x, (x + b) * w)),
     &BLUE,
   ))?;
 
