@@ -1,3 +1,5 @@
+#![warn(clippy::pedantic)]
+
 use ::anyhow::Result;
 use ::plotters::prelude::*;
 use ::std::path::{Path, PathBuf};
