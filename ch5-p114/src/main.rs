@@ -153,6 +153,13 @@ fn main() -> ::anyhow::Result<()> {
 
   dbg!(grads);
 
+  // page 131
+
+  let params_var_trained: Var =
+    training_loop_2(n_epochs, learning_rate, params_var, &t_un, &t_c)?;
+
+  println!("\nparams_var_trained:\n{params_var_trained}\n");
+
   Ok(())
 }
 
@@ -356,4 +363,51 @@ fn training_loop(
   }
 
   Ok(params)
+}
+
+fn training_loop_2(
+  n_epochs: usize,
+  learning_rate: f64,
+  params: &Var,
+  t_u: &Tensor,
+  t_c: &Tensor,
+) -> Result<Var> {
+  // page 131
+
+  let print_interval: usize = n_epochs.div_ceil(10);
+
+  for epoch in 1..=n_epochs {
+    let w: Tensor = params.i(0)?;
+
+    let b: Tensor = params.i(1)?;
+
+    let t_p: Tensor = model(t_u, &w, &b)?;
+
+    let loss: Tensor = loss_fn(&t_p, t_c)?;
+
+    let grads: GradStore = loss.backward()?;
+
+    let grad_params: &Tensor =
+      grads.get(params.as_tensor()).ok_or_else(|| {
+        ::candle_core::Error::Msg("missing parameter gradients".into())
+      })?;
+
+    let params_delta: Tensor = (grad_params * learning_rate)?;
+
+    let new_params: Tensor = params.as_tensor().sub(&params_delta)?;
+
+    params.set(&new_params)?;
+
+    let loss_scalar: f64 = loss.to_scalar()?;
+
+    if epoch % print_interval == 0 {
+      println!("Epoch {epoch}, Loss {loss_scalar:.6}");
+
+      if !loss_scalar.is_normal() {
+        break;
+      }
+    }
+  }
+
+  Ok(params.clone())
 }
