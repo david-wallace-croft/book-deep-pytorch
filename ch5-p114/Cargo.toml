@@ -15,3 +15,8 @@ version = "0.0.0-SNAPSHOT"
 anyhow = { workspace = true }
 candle-core = { workspace = true }
 plotters = { workspace = true }
+
+[lints.clippy]
+cast_precision_loss = "allow"
+pedantic = { level = "deny", priority = -1 }
+similar_names = "allow"

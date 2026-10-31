@@ -1,7 +1,3 @@
-#![warn(clippy::pedantic)]
-#![expect(clippy::similar_names)]
-#![expect(clippy::cast_precision_loss)]
-
 use ::candle_core::backprop::GradStore;
 use ::candle_core::{DType, Device, IndexOp, Result, Tensor, Var};
 use ::plotters::prelude::*;
