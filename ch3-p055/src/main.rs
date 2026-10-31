@@ -1,7 +1,7 @@
 use ::candle_core::{
-  CpuStorage::F32, DType, Device, Layout, Result, Storage, Storage::Cpu, Tensor,
+  CpuStorage::F32, DType, Device, Layout, Result, Storage::Cpu, StorageRef,
+  Tensor,
 };
-use ::std::sync::RwLockReadGuard;
 
 fn main() -> Result<()> {
   let device: Device = Device::cuda_if_available(0)?;
@@ -27,7 +27,7 @@ fn main() -> Result<()> {
 
   println!("points:\n{points}\n");
 
-  let (points_storage, points_layout): (RwLockReadGuard<'_, Storage>, &Layout) =
+  let (points_storage, points_layout): (StorageRef<'_>, &Layout) =
     points.storage_and_layout();
 
   // page 56

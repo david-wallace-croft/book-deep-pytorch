@@ -1,0 +1,8 @@
+[schema]
+path = "https://raw.githubusercontent.com/rust-lang/cargo/master/crates/cargo-util-schemas/manifest.schema.json"
+enabled = true
+
+[[rule]]
+include = ["**/Cargo.toml"]
+[rule.schema]
+path = "https://raw.githubusercontent.com/rust-lang/cargo/master/crates/cargo-util-schemas/manifest.schema.json"
