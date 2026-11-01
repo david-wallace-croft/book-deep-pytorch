@@ -15,7 +15,6 @@ version = "0.0.0-SNAPSHOT"
 anyhow = { workspace = true }
 candle-core = { workspace = true }
 candle-nn = { workspace = true }
-plotters = { workspace = true }
 
 [lints.clippy]
 cast_precision_loss = "allow"

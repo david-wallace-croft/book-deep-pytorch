@@ -61,6 +61,7 @@ members = [
   "ch5-p133",
   "ch5-p134",
   "ch5-p135",
+  "ch5-p139",
 ]
 
 [workspace.dependencies]
@@ -76,7 +77,7 @@ image = "0.25.10"
 # ndarray = "=0.17.2"
 # ndarray-rand = "=0.16.0"
 plotters = "=0.3.7"
-# rand = "=0.10.2"
+rand = "=0.10.3"
 # rand_distr = "=0.6.0"
 # rayon = "=1.12.0"
 tch = "=0.24.0"

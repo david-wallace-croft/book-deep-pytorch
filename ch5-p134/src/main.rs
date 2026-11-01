@@ -39,7 +39,7 @@ fn main() -> ::anyhow::Result<()> {
 
   let optimizer: SGD = SGD::new(vec![params_var.clone()], learning_rate)?;
 
-  // Increased the number of epochs to compensate for not using momentum.
+  // Increased the number of epochs to compensate for not using momentum
   let n_epochs: usize = 2_000_000;
 
   let params_trained: Var =
