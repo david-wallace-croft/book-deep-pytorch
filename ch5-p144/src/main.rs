@@ -133,7 +133,9 @@ fn randperm(
   n: usize,
   device: &Device,
 ) -> Result<Tensor> {
-  let mut indices: Vec<u32> = (0..n as u32).collect();
+  let n_u32: u32 = u32::try_from(n)?;
+
+  let mut indices: Vec<u32> = (0..n_u32).collect();
 
   let mut rng = rng();
 
