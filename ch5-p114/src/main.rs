@@ -385,12 +385,11 @@ fn training_loop_2(
 
     let loss: Tensor = loss_fn(&t_p, t_c)?;
 
-    let grads: GradStore = loss.backward()?;
+    let grad_store: GradStore = loss.backward()?;
 
-    let grad_params: &Tensor =
-      grads.get(params.as_tensor()).ok_or_else(|| {
-        ::candle_core::Error::Msg("missing parameter gradients".into())
-      })?;
+    let params_tensor: &Tensor = params.as_tensor();
+
+    let grad_params: &Tensor = grad_store.get(params_tensor).unwrap();
 
     let params_delta: Tensor = (grad_params * learning_rate)?;
 
