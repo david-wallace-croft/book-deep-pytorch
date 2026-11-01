@@ -33,12 +33,15 @@ fn main() -> ::anyhow::Result<()> {
   dbg!(params_var);
 
   let params_adam_w: ParamsAdamW = ParamsAdamW {
+    // beta1: 0.9,
+    // beta2: 0.999,
+    // eps: 1e-8,
     lr: 1e-1,
-    beta1: 0.9,
-    beta2: 0.999,
-    eps: 1e-8,
-    weight_decay: 0.01,
+    weight_decay: 0.,
+    ..Default::default()
   };
+
+  dbg!(&params_adam_w);
 
   let optimizer: AdamW = AdamW::new(vec![params_var.clone()], params_adam_w)?;
 
