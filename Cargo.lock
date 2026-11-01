@@ -367,6 +367,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "candle-nn"
+version = "0.11.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "437fabe77547c2447c7bdf3cc946e19db29a2832440176b419f77c80b0a9a05e"
+dependencies = [
+ "candle-core",
+ "half",
+ "libc",
+ "num-traits",
+ "rayon",
+ "safetensors 0.8.0",
+ "serde",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "castaway"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -524,6 +540,26 @@ version = "0.0.0-SNAPSHOT"
 dependencies = [
  "anyhow",
  "candle-core",
+ "plotters",
+]
+
+[[package]]
+name = "ch5-p133"
+version = "0.0.0-SNAPSHOT"
+dependencies = [
+ "anyhow",
+ "candle-core",
+ "candle-nn",
+ "plotters",
+]
+
+[[package]]
+name = "ch5-p134"
+version = "0.0.0-SNAPSHOT"
+dependencies = [
+ "anyhow",
+ "candle-core",
+ "candle-nn",
  "plotters",
 ]
 

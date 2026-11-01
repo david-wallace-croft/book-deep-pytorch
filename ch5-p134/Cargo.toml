@@ -1,0 +1,23 @@
+[package]
+authors.workspace = true
+description.workspace = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+name = "ch5-p134"
+publish = false
+readme.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version = "0.0.0-SNAPSHOT"
+
+[dependencies]
+anyhow = { workspace = true }
+candle-core = { workspace = true }
+candle-nn = { workspace = true }
+plotters = { workspace = true }
+
+[lints.clippy]
+cast_precision_loss = "allow"
+pedantic = { level = "deny", priority = -1 }
+similar_names = "allow"
