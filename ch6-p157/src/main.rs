@@ -89,7 +89,7 @@ fn main() -> ::anyhow::Result<()> {
 
   let linear_model: Linear = ::candle_nn::linear(1, 1, var_builder_args)?;
 
-  println!("\nlinear_model:\n{:?}\n", &linear_model);
+  println!("\nlinear_model:\n{:?}\n", linear_model);
 
   let output: Tensor = linear_model.forward(&t_un_val)?;
 
