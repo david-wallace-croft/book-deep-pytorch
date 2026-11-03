@@ -591,6 +591,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "ch6-p157"
+version = "0.0.0-SNAPSHOT"
+dependencies = [
+ "anyhow",
+ "candle-core",
+ "candle-nn",
+ "rand 0.10.3",
+]
+
+[[package]]
 name = "chacha20"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
