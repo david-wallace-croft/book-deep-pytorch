@@ -93,7 +93,17 @@ fn main() -> ::anyhow::Result<()> {
 
   let output: Tensor = linear_model.forward(&t_un_val)?;
 
-  println!("output:\n{output}");
+  println!("output:\n{output}\n");
+
+  // page 158
+
+  let weight: &Tensor = linear_model.weight();
+
+  println!("weight:\n{weight}\n");
+
+  let bias: &Tensor = linear_model.bias().unwrap();
+
+  println!("bias:\n{bias}\n");
 
   Ok(())
 }
