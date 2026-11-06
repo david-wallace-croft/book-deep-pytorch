@@ -105,6 +105,24 @@ fn main() -> ::anyhow::Result<()> {
 
   println!("bias:\n{bias}\n");
 
+  // page 159
+
+  let x: Tensor = Tensor::ones((1, 1), DType::F64, &device)?;
+
+  println!("ones:\n{x}\n");
+
+  let y: Tensor = linear_model.forward(&x)?;
+
+  println!("y:\n{y}\n");
+
+  let x: Tensor = Tensor::ones((10, 1), DType::F64, &device)?;
+
+  println!("ones:\n{x}\n");
+
+  let y: Tensor = linear_model.forward(&x)?;
+
+  println!("y:\n{y}\n");
+
   Ok(())
 }
 
