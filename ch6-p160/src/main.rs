@@ -101,7 +101,7 @@ fn make_training_data(
 
   dbg!(n_val);
 
-  let shuffled_indices = randperm(n_samples, &device)?;
+  let shuffled_indices = randperm(n_samples, device)?;
 
   dbg!(&shuffled_indices);
 
@@ -157,6 +157,7 @@ fn randperm(
   Tensor::new(indices.as_slice(), device)
 }
 
+#[expect(clippy::too_many_arguments)]
 fn training_loop<F, M: Module, O: Optimizer>(
   n_epochs: usize,
   optimizer: &mut O,
