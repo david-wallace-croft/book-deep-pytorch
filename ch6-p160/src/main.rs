@@ -8,7 +8,7 @@ use ::rand::rng;
 fn main() -> Result<()> {
   let device: Device = Device::Cpu;
 
-  let (t_c_train, t_c_val, t_u_train, t_u_val) = make_training_data(&device)?;
+  let (t_c_train, t_c_val, t_un_train, t_un_val) = make_training_data(&device)?;
 
   // page 161
 
@@ -28,17 +28,17 @@ fn main() -> Result<()> {
 
   dbg!(&parameters);
 
-  // Using a learning rate of 1e-5 instead of 1e-2 because momentum is not used.
+  // Using a learning rate of 1e-4 instead of 1e-2 because momentum is not used.
   // Quoting from SGD source code: "Contrary to the PyTorch implementation of
   // SGD, this version does not support momentum"
-  let learning_rate: f64 = 1e-5;
+  let learning_rate: f64 = 1e-4;
 
   let mut optimizer: SGD = SGD::new(parameters, learning_rate)?;
 
   // page 162
 
   // Increased the number of epochs to compensate for not using momentum
-  let n_epochs: usize = 1_500_000;
+  let n_epochs: usize = 300_000;
 
   let loss_fn = loss::mse;
 
@@ -47,8 +47,8 @@ fn main() -> Result<()> {
     &mut optimizer,
     &linear_model,
     loss_fn,
-    &t_u_train,
-    &t_u_val,
+    &t_un_train,
+    &t_un_val,
     &t_c_train,
     &t_c_val,
   )?;
@@ -131,7 +131,15 @@ fn make_training_data(
 
   dbg!(&t_c_val);
 
-  Ok((t_c_train, t_c_val, t_u_train, t_u_val))
+  let t_un_train: Tensor = (0.1 * t_u_train)?;
+
+  dbg!(&t_un_train);
+
+  let t_un_val: Tensor = (0.1 * t_u_val)?;
+
+  dbg!(&t_un_val);
+
+  Ok((t_c_train, t_c_val, t_un_train, t_un_val))
 }
 
 fn randperm(
@@ -183,7 +191,7 @@ where
       break;
     }
 
-    if epoch == 1 || epoch % 100_000 == 0 {
+    if epoch == 1 || epoch % 10_000 == 0 {
       println!(
         "Epoch {}, Training Loss {:.6}, Validation Loss {:.6}",
         epoch, loss_train_scalar, loss_val_scalar
