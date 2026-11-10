@@ -1,6 +1,6 @@
 #![expect(unused)]
 
-use ::candle_core::{DType, Device, IndexOp, Result, Shape, Tensor, Var};
+use ::candle_core::{DType, Device, IndexOp, Result, Shape, Tensor, Var, bail};
 use ::candle_nn::loss;
 use ::candle_nn::var_builder::{SimpleBackend, VarBuilderArgs};
 use ::candle_nn::{
@@ -8,6 +8,8 @@ use ::candle_nn::{
 };
 use ::rand::prelude::*;
 use ::rand::rng;
+use ::std::collections::HashMap;
+use ::std::sync::MutexGuard;
 
 fn main() -> Result<()> {
   let device: Device = Device::Cpu;
@@ -48,14 +50,14 @@ fn main() -> Result<()> {
 
   // page 166
 
-  // Access the bias tensor directly from the VarMap
-  let output_bias = var_map
-    .data()
-    .lock()
-    .unwrap()
-    .get("output_linear.bias")
-    .cloned()
-    .expect("Bias not found");
+  let data: MutexGuard<'_, HashMap<String, Var>> =
+    var_map.data().lock().unwrap();
+
+  let output_bias_option: Option<&Var> = data.get("output_linear.bias");
+
+  let Some(output_bias) = output_bias_option else {
+    bail!("not found");
+  };
 
   println!("\noutput_bias:\n{output_bias}\n");
 
