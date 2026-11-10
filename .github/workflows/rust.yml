@@ -38,6 +38,7 @@ jobs:
           fi
 
           source .venv/bin/activate
+          python -m ensurepip --upgrade
 
           if ! python - <<'PY'
           import importlib.util
