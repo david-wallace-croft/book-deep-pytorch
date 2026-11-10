@@ -42,7 +42,7 @@ jobs:
           if ! python - <<'PY'
             import importlib.util
             raise SystemExit(0 if importlib.util.find_spec("torch") is not None else 1)
-            PY
+          PY
           then
             python -m pip install torch==2.12.1 torchvision --index-url https://download.pytorch.org/whl/cpu
           fi
