@@ -85,7 +85,7 @@ fn main() -> ::anyhow::Result<()> {
 
   println!("output_linear_bias:\n{output_linear_bias}\n");
 
-  // Using a learning rate of 1e-5 instead of 1e-2 because momentum is not used.
+  // Using a learning rate of 1e-5 instead of 1e-3 because momentum is not used.
   // Quoting from SGD source code: "Contrary to the PyTorch implementation of
   // SGD, this version does not support momentum"
   let learning_rate: f64 = 1e-5;
@@ -93,7 +93,7 @@ fn main() -> ::anyhow::Result<()> {
   let mut optimizer: SGD = SGD::new(var_vec, learning_rate)?;
 
   // Increased the number of epochs to compensate for not using momentum
-  let n_epochs: usize = 500_000;
+  let n_epochs: usize = 1_000_000;
 
   let loss_fn = loss::mse;
 
@@ -287,21 +287,14 @@ fn plot_data(
     .axis_desc_style(("sans-serif", 30))
     .draw()?;
 
-  // chart.draw_series(LineSeries::new(
-  //   (0..=1)
-  //     .map(|x: i32| f64::from(x) * 70. + 15.)
-  //     .map(|x: f64| (x, (x - 32.) * 100. / 180.)),
-  //   &BLACK,
-  // ))?;
+  let data: Vec<(f64, f64)> = t_range_slice
+    .iter()
+    .zip(t_model_slice.iter())
+    .map(|(u, p)| (*u, *p))
+    .collect();
 
-  // chart.draw_series(LineSeries::new(
-  //   (0..=1)
-  //     .map(|x: i32| f64::from(x) * 70. + 15.)
-  //     .map(|x: f64| (x, (x + b) * w)),
-  //   &BLUE,
-  // ))?;
-
-  // chart.draw_series(LineSeries::new(data.iter().copied(), &GREEN))?;
+  chart
+    .draw_series(LineSeries::new(data.iter().copied(), CYAN.stroke_width(4)))?;
 
   let data: Vec<(f64, f64)> = t_u_slice
     .iter()
@@ -322,15 +315,6 @@ fn plot_data(
     .collect();
 
   chart.draw_series(data.iter().map(|&(x, y)| Cross::new((x, y), 8, BLACK)))?;
-
-  let data: Vec<(f64, f64)> = t_range_slice
-    .iter()
-    .zip(t_model_slice.iter())
-    .map(|(u, p)| (*u, *p))
-    .collect();
-
-  chart
-    .draw_series(LineSeries::new(data.iter().copied(), CYAN.stroke_width(4)))?;
 
   root.present()?;
 
