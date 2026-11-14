@@ -1,17 +1,20 @@
 #![expect(unused)]
 
+use ::anyhow::anyhow;
 use ::candle_core::{DType, Device, IndexOp, Result, Shape, Tensor, Var, bail};
 use ::candle_nn::loss;
 use ::candle_nn::var_builder::{SimpleBackend, VarBuilderArgs};
 use ::candle_nn::{
   Linear, Module, Optimizer, SGD, Sequential, VarBuilder, VarMap,
 };
+use ::plotters::prelude::*;
 use ::rand::prelude::*;
 use ::rand::rng;
 use ::std::collections::HashMap;
+use ::std::path::{Path, PathBuf};
 use ::std::sync::MutexGuard;
 
-fn main() -> Result<()> {
+fn main() -> ::anyhow::Result<()> {
   let device: Device = Device::Cpu;
 
   // page 164
@@ -77,7 +80,7 @@ fn main() -> Result<()> {
   let output_linear_bias_option: Option<&Var> = data.get("output_linear.bias");
 
   let Some(output_linear_bias) = output_linear_bias_option else {
-    bail!("not found");
+    return Err(anyhow!("not found"));
   };
 
   println!("output_linear_bias:\n{output_linear_bias}\n");
@@ -90,11 +93,12 @@ fn main() -> Result<()> {
   let mut optimizer: SGD = SGD::new(var_vec, learning_rate)?;
 
   // Increased the number of epochs to compensate for not using momentum
-  let n_epochs: usize = 300_000;
+  let n_epochs: usize = 500_000;
 
   let loss_fn = loss::mse;
 
-  let (t_c_train, t_c_val, t_un_train, t_un_val) = make_training_data(&device)?;
+  let (t_c_train, t_c_val, t_un_train, t_un_val, t_u, t_c_array, t_u_array) =
+    make_training_data(&device)?;
 
   training_loop(
     n_epochs,
@@ -117,21 +121,56 @@ fn main() -> Result<()> {
     data.get("hidden_linear.weight");
 
   let Some(hidden_linear_weight) = hidden_linear_weight_option else {
-    bail!("not found");
+    return Err(anyhow!("not found"));
   };
 
   println!("hidden_linear_weight:\n{hidden_linear_weight}\n");
 
   // page 167
 
-  // TODO
+  println!("t_u:\n{t_u}\n");
+
+  let t_un: Tensor = (0.1 * t_u)?;
+
+  let t_p: Tensor = seq_model.forward(&t_un)?;
+
+  println!("t_p:\n{t_p}\n");
+
+  let t_p_squeeze: Tensor = t_p.squeeze(1)?;
+
+  println!("t_p_squeeze:\n{t_p_squeeze}\n");
+
+  let t_p_vec: Vec<f64> = t_p_squeeze.to_vec1()?;
+
+  println!("t_p_vec:\n{:?}\n", t_p_vec);
+
+  let t_range_vec: Vec<f64> = (20..=90).map(f64::from).collect();
+
+  let t_range: Tensor = Tensor::new(t_range_vec.as_slice(), &device)?;
+
+  let t_range_unsqueezed: Tensor = t_range.unsqueeze(1)?;
+
+  println!("t_range_unsqueezed:\n{t_range_unsqueezed}\n");
+
+  let t_range_normalized: Tensor = (0.1 * t_range_unsqueezed)?;
+
+  println!("t_range_normalized:\n{t_range_normalized}\n");
+
+  let t_model: Tensor = seq_model.forward(&t_range_normalized)?;
+
+  println!("t_model:\n{t_model}\n");
+
+  let t_model_vec: Vec<f64> = t_model.squeeze(1)?.to_vec1()?;
+
+  plot_data(&t_c_array, &t_p_vec, &t_u_array, &t_range_vec, &t_model_vec)?;
 
   Ok(())
 }
 
+#[expect(clippy::type_complexity)]
 fn make_training_data(
   device: &Device
-) -> Result<(Tensor, Tensor, Tensor, Tensor)> {
+) -> Result<(Tensor, Tensor, Tensor, Tensor, Tensor, [f64; 11], [f64; 11])> {
   // page 160
 
   let t_c_array: [f64; 11] = [
@@ -204,7 +243,98 @@ fn make_training_data(
 
   dbg!(&t_un_val);
 
-  Ok((t_c_train, t_c_val, t_un_train, t_un_val))
+  Ok((
+    t_c_train, t_c_val, t_un_train, t_un_val, t_u, t_c_array, t_u_array,
+  ))
+}
+
+fn plot_data(
+  t_c_slice: &[f64],
+  t_p_slice: &[f64],
+  t_u_slice: &[f64],
+  t_range_slice: &[f64],
+  t_model_slice: &[f64],
+  // w: f64,
+  // b: f64,
+) -> ::anyhow::Result<()> {
+  let data: Vec<(f64, f64)> = t_u_slice
+    .iter()
+    .zip(t_c_slice.iter())
+    .map(|(u, p)| (*u, *p))
+    .collect();
+
+  let cargo_manifest_dir: &str = env!("CARGO_MANIFEST_DIR");
+
+  let scatter_plot_path: PathBuf =
+    Path::new(cargo_manifest_dir).join("temperature_plot.png");
+
+  let root =
+    BitMapBackend::new(&scatter_plot_path, (640, 480)).into_drawing_area();
+
+  root.fill(&WHITE)?;
+
+  let mut chart = ChartBuilder::on(&root)
+    .caption("Celsius-Fahrenheit", ("sans-serif", 25).into_font())
+    .margin(50)
+    .x_label_area_size(30)
+    .y_label_area_size(30)
+    .build_cartesian_2d(20.0..90.0, -10.0..30.)?;
+
+  chart
+    .configure_mesh()
+    .x_desc("Fahrenheit")
+    .y_desc("Celsius")
+    .axis_desc_style(("sans-serif", 30))
+    .draw()?;
+
+  // chart.draw_series(LineSeries::new(
+  //   (0..=1)
+  //     .map(|x: i32| f64::from(x) * 70. + 15.)
+  //     .map(|x: f64| (x, (x - 32.) * 100. / 180.)),
+  //   &BLACK,
+  // ))?;
+
+  // chart.draw_series(LineSeries::new(
+  //   (0..=1)
+  //     .map(|x: i32| f64::from(x) * 70. + 15.)
+  //     .map(|x: f64| (x, (x + b) * w)),
+  //   &BLUE,
+  // ))?;
+
+  // chart.draw_series(LineSeries::new(data.iter().copied(), &GREEN))?;
+
+  let data: Vec<(f64, f64)> = t_u_slice
+    .iter()
+    .zip(t_c_slice.iter())
+    .map(|(u, p)| (*u, *p))
+    .collect();
+
+  chart.draw_series(
+    data
+      .iter()
+      .map(|&(x, y)| Circle::new((x, y), 5, RED.filled())),
+  )?;
+
+  let data: Vec<(f64, f64)> = t_u_slice
+    .iter()
+    .zip(t_p_slice.iter())
+    .map(|(u, p)| (*u, *p))
+    .collect();
+
+  chart.draw_series(data.iter().map(|&(x, y)| Cross::new((x, y), 8, BLACK)))?;
+
+  let data: Vec<(f64, f64)> = t_range_slice
+    .iter()
+    .zip(t_model_slice.iter())
+    .map(|(u, p)| (*u, *p))
+    .collect();
+
+  chart
+    .draw_series(LineSeries::new(data.iter().copied(), CYAN.stroke_width(4)))?;
+
+  root.present()?;
+
+  Ok(())
 }
 
 fn randperm(

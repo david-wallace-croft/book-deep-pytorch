@@ -613,8 +613,10 @@ dependencies = [
 name = "ch6-p164"
 version = "0.0.0-SNAPSHOT"
 dependencies = [
+ "anyhow",
  "candle-core",
  "candle-nn",
+ "plotters",
  "rand 0.10.3",
 ]
 
