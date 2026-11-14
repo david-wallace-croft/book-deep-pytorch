@@ -4,7 +4,6 @@ description = "Code adapted from 'Deep Learning with PyTorch, Second Edition'"
 edition = "2024"
 homepage = "https://www.CroftSoft.com/"
 license = "MIT"
-publish = false
 readme = "README.md"
 repository = "https://github.com/david-wallace-croft/book-deep-pytorch"
 rust-version = "1.98.1"

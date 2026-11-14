@@ -604,7 +604,6 @@ dependencies = [
 name = "ch6-p160"
 version = "0.0.0-SNAPSHOT"
 dependencies = [
- "anyhow",
  "candle-core",
  "candle-nn",
  "rand 0.10.3",
@@ -614,7 +613,6 @@ dependencies = [
 name = "ch6-p164"
 version = "0.0.0-SNAPSHOT"
 dependencies = [
- "anyhow",
  "candle-core",
  "candle-nn",
  "rand 0.10.3",
