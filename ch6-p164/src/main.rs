@@ -93,7 +93,7 @@ fn main() -> ::anyhow::Result<()> {
   let mut optimizer: SGD = SGD::new(var_vec, learning_rate)?;
 
   // Increased the number of epochs to compensate for not using momentum
-  let n_epochs: usize = 1; //1_000_000;
+  let n_epochs: usize = 1_000_000;
 
   let loss_fn = loss::mse;
 
