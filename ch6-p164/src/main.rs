@@ -93,7 +93,7 @@ fn main() -> ::anyhow::Result<()> {
   let mut optimizer: SGD = SGD::new(var_vec, learning_rate)?;
 
   // Increased the number of epochs to compensate for not using momentum
-  let n_epochs: usize = 1_000_000;
+  let n_epochs: usize = 1; //1_000_000;
 
   let loss_fn = loss::mse;
 
@@ -276,8 +276,8 @@ fn plot_data(
   let mut chart = ChartBuilder::on(&root)
     .caption("Celsius-Fahrenheit", ("sans-serif", 25).into_font())
     .margin(50)
-    .x_label_area_size(30)
-    .y_label_area_size(30)
+    .x_label_area_size(50)
+    .y_label_area_size(50)
     .build_cartesian_2d(20.0..90.0, -10.0..30.)?;
 
   chart
