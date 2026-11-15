@@ -4,7 +4,9 @@ use ::anyhow::{Result, anyhow};
 use ::candle_core::{DType, Device, IndexOp, Tensor, Var};
 use ::candle_nn::loss;
 use ::candle_nn::var_builder::{SimpleBackend, VarBuilderArgs};
-use ::candle_nn::{Module, Optimizer, SGD, Sequential, VarBuilder, VarMap};
+use ::candle_nn::{
+  AdamW, Module, Optimizer, ParamsAdamW, SGD, Sequential, VarBuilder, VarMap,
+};
 use ::csv::{Reader, ReaderBuilder, StringRecord};
 use ::plotters::prelude::*;
 use ::rand::prelude::*;
@@ -79,66 +81,64 @@ fn main() -> ::anyhow::Result<()> {
 
   let target: Tensor = wineq.i((.., score_column_index))?;
 
-  // let target: Tensor = target.to_dtype(DType::U8)?;
+  let target: Tensor = target.unsqueeze(1)?;
 
   println!("target:\n{target}\n");
 
   // page 168 problem 2
 
-  // let var_map: VarMap = VarMap::new();
+  let var_map: VarMap = VarMap::new();
 
-  // let var_builder_args: VarBuilderArgs<'_, Box<dyn SimpleBackend>> =
-  //   VarBuilder::from_varmap(&var_map, DType::F64, &device);
+  let var_builder_args: VarBuilderArgs<'_, Box<dyn SimpleBackend>> =
+    VarBuilder::from_varmap(&var_map, DType::F64, &device);
 
-  // let seq_model: Sequential = ::candle_nn::seq()
-  //   .add(::candle_nn::linear(
-  //     1,
-  //     22,
-  //     var_builder_args.pp("hidden_linear"),
-  //   )?)
-  //   .add_fn(|xs: &Tensor| xs.tanh())
-  //   .add(::candle_nn::linear(
-  //     22,
-  //     1,
-  //     var_builder_args.pp("output_linear"),
-  //   )?);
+  let seq_model: Sequential = ::candle_nn::seq()
+    .add(::candle_nn::linear(
+      11,
+      22,
+      var_builder_args.pp("hidden_linear"),
+    )?)
+    .add_fn(|xs: &Tensor| xs.tanh())
+    .add(::candle_nn::linear(
+      22,
+      1,
+      var_builder_args.pp("output_linear"),
+    )?);
 
-  // let var_vec: Vec<Var> = var_map.all_vars();
+  let var_vec: Vec<Var> = var_map.all_vars();
 
-  // println!("\nseq_model length: {}\n", seq_model.len());
+  let params_adam_w: ParamsAdamW = ParamsAdamW {
+    // beta1: 0.9,
+    // beta2: 0.999,
+    // eps: 1e-8,
+    lr: 1e-3,
+    weight_decay: 0.,
+    ..Default::default()
+  };
 
-  // let data: MutexGuard<'_, HashMap<String, Var>> =
-  //   var_map.data().lock().unwrap();
+  dbg!(&params_adam_w);
 
-  // let output_linear_bias_option: Option<&Var> = data.get("output_linear.bias");
+  let mut optimizer: AdamW = AdamW::new(var_vec, params_adam_w)?;
 
-  // let Some(output_linear_bias) = output_linear_bias_option else {
-  //   return Err(anyhow!("not found"));
-  // };
+  let n_epochs: usize = 1_000;
 
-  // println!("output_linear_bias:\n{output_linear_bias}\n");
-
-  // let learning_rate: f64 = 1e-5;
-
-  // let mut optimizer: SGD = SGD::new(var_vec, learning_rate)?;
-
-  // let n_epochs: usize = 10_000_000;
-
-  // let loss_fn = loss::mse;
+  let loss_fn = loss::mse;
 
   // let (t_c_train, t_c_val, t_un_train, t_un_val, t_u, t_c_array, t_u_array) =
   //   make_training_data(&device)?;
 
-  // training_loop(
-  //   n_epochs,
-  //   &mut optimizer,
-  //   &seq_model,
-  //   loss_fn,
-  //   &t_un_train,
-  //   &t_un_val,
-  //   &t_c_train,
-  //   &t_c_val,
-  // )?;
+  training_loop(
+    n_epochs,
+    &mut optimizer,
+    &seq_model,
+    loss_fn,
+    &data,
+    &target,
+    // &t_un_train,
+    // &t_un_val,
+    // &t_c_train,
+    // &t_c_val,
+  )?;
 
   // let output: Tensor = seq_model.forward(&t_un_val)?;
 
@@ -190,6 +190,38 @@ fn main() -> ::anyhow::Result<()> {
   // let t_model_vec: Vec<f64> = t_model.squeeze(1)?.to_vec1()?;
 
   // plot_data(&t_c_array, &t_p_vec, &t_u_array, &t_range_vec, &t_model_vec)?;
+
+  Ok(())
+}
+
+fn training_loop<F, M: Module, O: Optimizer>(
+  n_epochs: usize,
+  optimizer: &mut O,
+  model: &M,
+  loss_fn: F,
+  data: &Tensor,
+  target: &Tensor,
+) -> Result<()>
+where
+  F: Fn(&Tensor, &Tensor) -> ::candle_core::Result<Tensor>,
+{
+  for epoch in 1..=n_epochs {
+    let predicted: Tensor = model.forward(data)?;
+
+    let loss: Tensor = loss_fn(&predicted, target)?;
+
+    optimizer.backward_step(&loss)?;
+
+    let loss_scalar: f64 = loss.to_scalar()?;
+
+    if !loss_scalar.is_normal() {
+      break;
+    }
+
+    if epoch == 1 || epoch % 100 == 0 {
+      println!("Epoch {epoch}, Training Loss {loss_scalar:.6}");
+    }
+  }
 
   Ok(())
 }
