@@ -1,12 +1,8 @@
-#![expect(unused)]
-
 use ::anyhow::anyhow;
-use ::candle_core::{DType, Device, IndexOp, Result, Shape, Tensor, Var, bail};
+use ::candle_core::{DType, Device, IndexOp, Result, Shape, Tensor, Var};
 use ::candle_nn::loss;
 use ::candle_nn::var_builder::{SimpleBackend, VarBuilderArgs};
-use ::candle_nn::{
-  Linear, Module, Optimizer, SGD, Sequential, VarBuilder, VarMap,
-};
+use ::candle_nn::{Module, Optimizer, SGD, Sequential, VarBuilder, VarMap};
 use ::plotters::prelude::*;
 use ::rand::prelude::*;
 use ::rand::rng;
@@ -24,7 +20,7 @@ fn main() -> ::anyhow::Result<()> {
   let var_builder_args: VarBuilderArgs<'_, Box<dyn SimpleBackend>> =
     VarBuilder::from_varmap(&var_map, DType::F64, &device);
 
-  let seq_model: Sequential = ::candle_nn::seq()
+  let _seq_model: Sequential = ::candle_nn::seq()
     .add(::candle_nn::linear(
       1,
       13,
@@ -254,15 +250,7 @@ fn plot_data(
   t_u_slice: &[f64],
   t_range_slice: &[f64],
   t_model_slice: &[f64],
-  // w: f64,
-  // b: f64,
 ) -> ::anyhow::Result<()> {
-  let data: Vec<(f64, f64)> = t_u_slice
-    .iter()
-    .zip(t_c_slice.iter())
-    .map(|(u, p)| (*u, *p))
-    .collect();
-
   let cargo_manifest_dir: &str = env!("CARGO_MANIFEST_DIR");
 
   let scatter_plot_path: PathBuf =
