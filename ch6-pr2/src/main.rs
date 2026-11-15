@@ -1,20 +1,13 @@
-#![expect(unused)]
-
-use ::anyhow::{Result, anyhow};
+use ::anyhow::Result;
 use ::candle_core::{DType, Device, IndexOp, Tensor, Var};
 use ::candle_nn::loss;
 use ::candle_nn::var_builder::{SimpleBackend, VarBuilderArgs};
 use ::candle_nn::{
-  AdamW, Module, Optimizer, ParamsAdamW, SGD, Sequential, VarBuilder, VarMap,
+  AdamW, Module, Optimizer, ParamsAdamW, Sequential, VarBuilder, VarMap,
 };
 use ::csv::{Reader, ReaderBuilder, StringRecord};
-use ::plotters::prelude::*;
-use ::rand::prelude::*;
-use ::rand::rng;
-use ::std::collections::HashMap;
 use ::std::fs::File;
 use ::std::path::{Path, PathBuf};
-use ::std::sync::MutexGuard;
 
 fn main() -> ::anyhow::Result<()> {
   // page 81
@@ -116,16 +109,11 @@ fn main() -> ::anyhow::Result<()> {
     ..Default::default()
   };
 
-  dbg!(&params_adam_w);
-
   let mut optimizer: AdamW = AdamW::new(var_vec, params_adam_w)?;
 
   let n_epochs: usize = 1_000;
 
   let loss_fn = loss::mse;
-
-  // let (t_c_train, t_c_val, t_un_train, t_un_val, t_u, t_c_array, t_u_array) =
-  //   make_training_data(&device)?;
 
   training_loop(
     n_epochs,
@@ -134,62 +122,7 @@ fn main() -> ::anyhow::Result<()> {
     loss_fn,
     &data,
     &target,
-    // &t_un_train,
-    // &t_un_val,
-    // &t_c_train,
-    // &t_c_val,
   )?;
-
-  // let output: Tensor = seq_model.forward(&t_un_val)?;
-
-  // println!("\noutput:\n{output}\n");
-
-  // println!("answer:\n{t_c_val}\n");
-
-  // let hidden_linear_weight_option: Option<&Var> =
-  //   data.get("hidden_linear.weight");
-
-  // let Some(hidden_linear_weight) = hidden_linear_weight_option else {
-  //   return Err(anyhow!("not found"));
-  // };
-
-  // println!("hidden_linear_weight:\n{hidden_linear_weight}\n");
-
-  // println!("t_u:\n{t_u}\n");
-
-  // let t_un: Tensor = (0.1 * t_u)?;
-
-  // let t_p: Tensor = seq_model.forward(&t_un)?;
-
-  // println!("t_p:\n{t_p}\n");
-
-  // let t_p_squeeze: Tensor = t_p.squeeze(1)?;
-
-  // println!("t_p_squeeze:\n{t_p_squeeze}\n");
-
-  // let t_p_vec: Vec<f64> = t_p_squeeze.to_vec1()?;
-
-  // println!("t_p_vec:\n{:?}\n", t_p_vec);
-
-  // let t_range_vec: Vec<f64> = (20..=90).map(f64::from).collect();
-
-  // let t_range: Tensor = Tensor::new(t_range_vec.as_slice(), &device)?;
-
-  // let t_range_unsqueezed: Tensor = t_range.unsqueeze(1)?;
-
-  // println!("t_range_unsqueezed:\n{t_range_unsqueezed}\n");
-
-  // let t_range_normalized: Tensor = (0.1 * t_range_unsqueezed)?;
-
-  // println!("t_range_normalized:\n{t_range_normalized}\n");
-
-  // let t_model: Tensor = seq_model.forward(&t_range_normalized)?;
-
-  // println!("t_model:\n{t_model}\n");
-
-  // let t_model_vec: Vec<f64> = t_model.squeeze(1)?.to_vec1()?;
-
-  // plot_data(&t_c_array, &t_p_vec, &t_u_array, &t_range_vec, &t_model_vec)?;
 
   Ok(())
 }
